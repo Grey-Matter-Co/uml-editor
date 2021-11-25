@@ -3,16 +3,28 @@
 	margin: 0;
 }
 
+.title{
+	text-align: center;
+	padding-top: 5px;
+	height: 50px;
+	background-color: #0c63e4;
+	margin-bottom: 10px;
+	color: white;
+	font-family: "Bebas Neue";
+	font-size: 30px;
+}
+
 html, body {
 	height: 100%;
 }
 
 body {
 	font-family: "Benton Sans", "Helvetica Neue", helvetica, arial, sans-seri;
+	overflow-y: hidden;
 }
 
 .panel{
-	width: 50px;
+	width: 40px;
 }
 
 .bd-placeholder-img {
@@ -30,13 +42,13 @@ body {
 
 #cCode{
 	position: relative;
-	background-color: #d3d3d4;
+	background-color: white;
 }
 
 /*
     Don't remove anything beginning here, DANY! 😒
  */
-#layout {
+#layout{
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	grid-template-rows:    repeat(17, 1fr);
@@ -51,7 +63,6 @@ body {
 #layout::-webkit-scrollbar-thumb
 	{ border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3); background-color: #555; }
 
-
 .box {
 	//cambie el borde de 3 a 2 y padding de 10 a 8	//	No me peges peduzzi
 	border: 2px solid #666;
@@ -61,32 +72,26 @@ body {
 	cursor: move;
 }
 
-ul div{
-	align-content: center;
-}
-
 [class^="uml-"]
 	{ .box }
 
-//
-.uml-start, .uml-end{ // Añado un atributo a la etiqueta html.... => <ETIQUETA draggablr="true">
-	width: 50% !important;
-	position: relative;
-	position: relative;
+ul div {
+	width: 90%;
+	height: 60px;
+	margin-top: 10px;
+	margin-left: 5%;
+	background-size: 65%;
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
-.uml-variable {
-}
-.uml-action {
-}
-.uml-if {
-}
-.uml-for {
-}
-.uml-input {
-}
-.uml-output {
-}
+//
+.uml-start, .uml-end{ background-image: url("../uml-svg/point.svg");}
+.uml-process { background-image: url("../uml-svg/process.svg");}
+.uml-condition { background-image: url("../uml-svg/condition.svg");}
+.uml-declaration { background-image: url("../uml-svg/declaration.svg");}
+.uml-input { background-image: url("../uml-svg/input.svg");}
+.uml-output { background-image: url("../uml-svg/output.svg");}
 
 
 .box.over

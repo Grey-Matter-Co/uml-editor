@@ -54,7 +54,7 @@ document.addEventListener("DOMContentLoaded", event => {
 		});
 	}
 	
-	let items = document.querySelectorAll(".container .box");
+	let items = document.querySelectorAll("#layout .box");
 	items.forEach(function (item) {
 		item.addEventListener("dragstart", handleDragStart, false);
 		item.addEventListener("dragenter", handleDragEnter, false);
