@@ -1,5 +1,39 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    main.row.vh-100.w-100.m-0
+        // control de herramientas
+        .flex-shrink-0.col-2.vh-100.bg-white.p-3.shadow
+            a.d-flex.align-items-center.pb-3.mb-3.link-dark.text-decoration-none.border-bottom(href='/')
+                span.fs-5.fw-semibold Símbolos
+            ul.list-unstyled.ps-0.justify-content-center
+                .uml-start
+
+
+
+                //li.mb-1
+                    button.btn.btn-toggle.align-items-center.rounded(data-bs-toggle='collapse' data-bs-target='#home-collapse' aria-expanded='true')
+                        | Home
+                    #home-collapse.collapse.show(style='')
+                //li.mb-1
+                    button.btn.btn-toggle.align-items-center.rounded.collapsed(data-bs-toggle='collapse' data-bs-target='#dashboard-collapse' aria-expanded='false')
+                        | Dashboard
+                //li.mb-1
+                    button.btn.btn-toggle.align-items-center.rounded.collapsed(data-bs-toggle='collapse' data-bs-target='#orders-collapse' aria-expanded='false')
+                        | Orders
+
+            a.d-flex.align-items-center.pb-3.mb-3.link-dark.text-decoration-none.border-bottom(href='/')
+                span.fs-5.fw-semibold Herramientas
+            ul.list-unstyled.ps-0
+                li.my-3
+                li.mb-1
+                    button.btn.btn-toggle.align-items-center.rounded.collapsed(data-bs-toggle='collapse' data-bs-target='#account-collapse' aria-expanded='false')
+                        | Account
+                    #account-collapse.collapse
+
+        // contaniner será el layout del editor
+        #layout.col-8.bg-light.vh-100.scrollbar.scrollbar-deep-blue
+
+        // container del código en C
+        #cCode.col-2.vh-100
+            |    Código en C
