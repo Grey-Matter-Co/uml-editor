@@ -11,13 +11,24 @@ block content
             .d-flex.justify-content-between
                 i.bi.bi-download(title="Descargar Diagrama")
                 i.bi.bi-upload(title="Cargar Diagrama")
-                i.bi.bi-trash2(title="Eliminar Diagrama")
-                i.bi.bi-type(title="Editar tamaño texto")
-                i.bi.bi-paint-bucket(title="Modificar fondo")
-                    input#in-color-bg.form-control.form-control-color.d-none(type="color" value="#563d7c" title="Choose your color")
-                i.bi.bi-palette(title="Modificar contorno")
-                    input#in-color-border.form-control.form-control-color.d-none(type="color" value="#563d7c" title="Choose your color")
+                i.bi.bi-trash(title="Eliminar Diagrama")
+                i.bi.bi-type.in-popup-container(title="Editar tamaño texto")
+                .position-relative.d-none
+                    .in-popup(tabindex="-1")
+                        input(type='number' value='1' min=1 step='1')
+                        .quantity-nav
+                            i.bi.bi-plus.quantity-button.quantity-up(onclick="this.parentElement.parentElement.firstElementChild.stepUp()")
+                            i.bi.bi-dash.quantity-button.quantity-down(onclick="this.parentElement.parentElement.firstElementChild.stepDown()")
+                i.bi.bi-paint-bucket.in-popup-container(title="Modificar fondo")
+                .position-relative.d-none
+                    .in-popup(tabindex="-1")
+                        input#in-color-bg(type="color" value="#563d7c")
+                i.bi.bi-palette.in-popup-container(title="Modificar contorno")
+                .position-relative.d-none
+                    .in-popup(tabindex="-1")
+                        input#in-color-border(type="color" value="#563d7c")
                 i.bi.bi-x-lg(title="Eliminar Elemento")
+
             .d-flex.align-items-center.pb-1.pt-3.mb-3.border-bottom
                 span.fs-5.fw-semibold Símbolos
             ul.list-unstyled.ps-0.justify-content-center
@@ -29,12 +40,8 @@ block content
                 #uml-output(draggable="true")
                 #uml-end(draggable="true")
 
-
-
-
-
         // contaniner será el layout del editor
-        #layout.col-7.bg-light.vh-100.scrollbar.scrolleable
+        canvas#canvas.col-7.bg-light.vh-100.scrollbar.scrolleable(width="800" height="600")
 
         // container del código en C
         #cCode.col-3.vh-100.bg-white.pb-1.mb-3.shadow.p-3.scrolleable
