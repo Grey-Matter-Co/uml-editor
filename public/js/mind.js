@@ -1,4 +1,17 @@
 document.addEventListener("DOMContentLoaded", event => {
+	/**
+	 * Toolbar setup
+	 **/
+	let colorPickers = document.querySelectorAll('[id^="in-col"]')
+	for (const colorPicker of colorPickers) {
+		colorPicker.parentNode.addEventListener('click', _ => {
+			colorPicker.click()
+		})
+	}
+
+	/**
+	 * Layout setup
+	 */
 	let layout = document.querySelector('#layout')
 	
 	for (let i=0; i <20*7; i++) {
@@ -27,19 +40,17 @@ document.addEventListener("DOMContentLoaded", event => {
 	
 	function handleDragEnter(e) {
 		this.classList.add("over");
-		console.log("soltado")
 	}
 	
 	function handleDragLeave(e) {
 		this.classList.remove("over");
-		console.log("agarrado")
 	}
 	
 	function handleDrop(e) {
 		if (e.stopPropagation)
 			e.stopPropagation(); // stops the browser from redirecting.
-		console.log("hey there")
-		if (dragSrcEl !== this) {   // Intercambio de elementos
+
+		else if (dragSrcEl !== this) {   // Intercambio de elementos
 			console.log(`${dragSrcEl.innerHTML} => ${this.innerHTML}`)
 			dragSrcEl.innerHTML = this.innerHTML;
 			this.innerHTML = e.dataTransfer.getData("text/html");
@@ -54,7 +65,7 @@ document.addEventListener("DOMContentLoaded", event => {
 		});
 	}
 	
-	let items = document.querySelectorAll("#layout .box");
+	let items = document.querySelectorAll("#layout .box, [id^=\"uml-\"]");
 	items.forEach(function (item) {
 		item.addEventListener("dragstart", handleDragStart, false);
 		item.addEventListener("dragenter", handleDragEnter, false);
@@ -64,3 +75,7 @@ document.addEventListener("DOMContentLoaded", event => {
 		item.addEventListener("dragend", handleDragEnd, false);
 	})
 });
+
+function isSymbol(element) {
+	
+}

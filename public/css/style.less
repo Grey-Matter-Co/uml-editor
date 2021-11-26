@@ -3,7 +3,7 @@
 .title{
 	text-align: center;
 	padding-top: 5px;
-	height: 50px;
+	height: 8%;
 	background-color: #0c63e4;
 	color: white;
 	font-family: "Bebas Neue";
@@ -47,15 +47,17 @@ main > div { max-height: 100% }
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
 	grid-template-rows:    repeat(17, 1fr);
-	overflow-y: scroll;
+
 	//gap: 10px;
 }
 
-#layout::-webkit-scrollbar-track
+.scrolleable
+	{overflow-y: auto }
+.scrolleable::-webkit-scrollbar-track
 	{ -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); border-radius: 10px; background-color: #F5F5F5; }
-#layout::-webkit-scrollbar
-	{ width: 12px; background-color: #F5F5F5; }
-#layout::-webkit-scrollbar-thumb
+.scrolleable::-webkit-scrollbar
+	{ width: 8px; background-color: #F5F5F5; }
+.scrolleable::-webkit-scrollbar-thumb
 	{ border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3); background-color: #555; }
 
 .box {
@@ -67,10 +69,10 @@ main > div { max-height: 100% }
 	cursor: move;
 }
 
-[class^="uml-"]
-	{ .box }
-
-ul div {
+/*
+	Icons
+ */
+[id^="uml-"] {
 	width: 90%;
 	height: 60px;
 	margin-top: 10px;
@@ -78,6 +80,7 @@ ul div {
 	background-color: rgba(0,0,0,0);
 	background-repeat: no-repeat;
 	background-position: center;
+	background-size: contain;
 }
 
 /*
