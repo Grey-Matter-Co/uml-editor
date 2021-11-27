@@ -41,8 +41,7 @@ main > div { max-height: 100% }
 #layout{
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
-	grid-template-rows:    repeat(17, 1fr);
-
+	//grid-template-rows:    repeat(17, 1fr);
 	//gap: 10px;
 }
 
@@ -58,13 +57,20 @@ main > div { max-height: 100% }
 	{ border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3); background-color: #555; }
 
 .box {
-	//cambie el borde de 3 a 2 y padding de 10 a 8	//	No me peges peduzzi
-	border: 2px solid #666;
-	background-color: white;
 	border-radius: .5em;
 	padding: 8px;
-	cursor: move;
 }
+
+//.box::after {
+//	content:"";
+//	display: inline-block;
+//	height: 0.5em;
+//	vertical-align: bottom;
+//	width: 100%;
+//	margin-right: -100%;
+//	margin-left: 10px;
+//	border-top: 1px solid black;
+//}
 
 /*
 	Icons
@@ -177,17 +183,23 @@ input[type=number]:focus {
 	{ background-image: url("../uml-svg/start.svg"); }
 #uml-process
 	{ background-image: url("../uml-svg/process.svg"); }
-.uml-condition, #uml-condition
+#uml-condition
 	{ background-image: url("../uml-svg/condition.svg"); }
-.uml-declaration, #uml-declaration
+#uml-declaration
 	{ background-image: url("../uml-svg/declaration.svg"); }
-.uml-input, #uml-input
+#uml-input
 	{ background-image: url("../uml-svg/input.svg"); }
-.uml-output, #uml-output
+#uml-output
 	{ background-image: url("../uml-svg/output.svg"); }
 
 .box.over
 { border: 3px dotted #666; }
+
+.dragged {
+	user-select: none;
+	opacity: 0.1;
+	cursor: default;
+}
 
 [draggable]
 { user-select: none; }

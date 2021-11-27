@@ -5,12 +5,12 @@ block content
         p Flowchart
     main.row.w-100.m-0
         // control de herramientas
-        .flex-shrink-0.col-2.vh-100.bg-white.p-3.shadow.scrolleable
+        .flex-shrink-0.col-2.vh-100.p-3.shadow.scrolleable.bg-white(style="z-index:1")
             //.d-flex.align-items-center.pb-1.mb-3.link-dark.border-bottom
             .d-flex.justify-content-between
                 i.bi.bi-download(title="Descargar Diagrama")
                 i.bi.bi-upload(title="Cargar Diagrama")
-                i.bi.bi-trash(title="Eliminar Diagrama")
+                i.bi.bi-trash(title="Eliminar Diagrama" onclick="clearLayout()")
                 i.bi.bi-type.in-popup-container(title="Editar tamaño texto")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
@@ -21,12 +21,12 @@ block content
                 i.bi.bi-paint-bucket.in-popup-container(title="Modificar fondo")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
-                        input#in-color-bg(type="color" value="#563d7c")
+                        input#in-color-bg(type="color" onchange="changeBg(this)")
                 i.bi.bi-palette.in-popup-container(title="Modificar contorno")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
-                        input#in-color-border(type="color" value="#563d7c")
-                i.bi.bi-x-lg(title="Eliminar Elemento")
+                        input#in-color-border(type="color" onchange="changeBorder(this)")
+                i.bi.bi-x-lg(title="Eliminar Elemento" onclick="deleteElement()")
 
             .d-flex.align-items-center.pb-1.pt-3.mb-3.border-bottom
                 span.fs-5.fw-semibold Símbolos
