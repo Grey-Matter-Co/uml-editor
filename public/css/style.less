@@ -35,11 +35,6 @@ main > div { max-height: 100% }
 	}
 }
 
-#cCode{
-	position: relative;
-	background-color: white;
-}
-
 /*
     Don't remove anything beginning here, DANY! 😒
  */
@@ -50,6 +45,8 @@ main > div { max-height: 100% }
 
 	//gap: 10px;
 }
+
+#cText{ font-family: "Bebas Neue"}
 
 .scrolleable
 	{overflow-y: auto }
@@ -176,10 +173,9 @@ input[type=number]:focus {
  */
 [class^="uml-"]
 	{ .box }
-.uml-start, .uml-end,
 #uml-start, #uml-end
-	{ background-image: url("../uml-svg/point.svg"); }
-.uml-process, #uml-process
+	{ background-image: url("../uml-svg/start.svg"); }
+#uml-process
 	{ background-image: url("../uml-svg/process.svg"); }
 .uml-condition, #uml-condition
 	{ background-image: url("../uml-svg/condition.svg"); }
@@ -189,7 +185,6 @@ input[type=number]:focus {
 	{ background-image: url("../uml-svg/input.svg"); }
 .uml-output, #uml-output
 	{ background-image: url("../uml-svg/output.svg"); }
-
 
 .box.over
 { border: 3px dotted #666; }
@@ -202,4 +197,9 @@ input[type=number]:focus {
 	position: relative;
 	z-index: 1;
 	border-radius: 5px;
+}
+
+#textcode{
+	resize: none;
+	font-size: 15px;
 }

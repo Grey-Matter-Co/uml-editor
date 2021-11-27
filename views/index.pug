@@ -7,7 +7,6 @@ block content
         // control de herramientas
         .flex-shrink-0.col-2.vh-100.bg-white.p-3.shadow.scrolleable
             //.d-flex.align-items-center.pb-1.mb-3.link-dark.border-bottom
-                span.fs-5.fw-semibold Herramientas
             .d-flex.justify-content-between
                 i.bi.bi-download(title="Descargar Diagrama")
                 i.bi.bi-upload(title="Cargar Diagrama")
@@ -32,23 +31,28 @@ block content
             .d-flex.align-items-center.pb-1.pt-3.mb-3.border-bottom
                 span.fs-5.fw-semibold Símbolos
             ul.list-unstyled.ps-0.justify-content-center
-                #uml-start(draggable="true")
-                #uml-process(draggable="true")
-                #uml-condition(draggable="true")
-                #uml-declaration(draggable="true")
-                #uml-input(draggable="true")
-                #uml-output(draggable="true")
-                #uml-end(draggable="true")
+                #uml-start(draggable="true")(title="Inicio")
+                #uml-process(draggable="true")(title="Proceso")
+                #uml-condition(draggable="true")(title="Condición")
+                #uml-declaration(draggable="true")(title="Declaración")
+                #uml-input(draggable="true")(title="Entrada")
+                #uml-output(draggable="true")(title="Salida")
+                #uml-end(draggable="true")(title="Fin")
 
         // contaniner será el layout del editor
-        canvas#canvas.col-7.bg-light.vh-100.scrollbar.scrolleable(width="800" height="600")
+        //canvas#canvas.col-7.bg-light.vh-100.scrollbar.scrolleable(width="800" height="600")
+        #layout.col-7.bg-light.vh-100.scrollbar.scrolleable
 
         // container del código en C
-        #cCode.col-3.vh-100.bg-white.pb-1.mb-3.shadow.p-3.scrolleable
-            .fs-5.fw-semibold.border-bottom.pb-1 Código en C
-            div
-                svg(xmlns='http://www.w3.org/2000/svg' width='54' height='14' viewbox='0 0 54 14')
+        //#cCode.col-3.vh-100.bg-white.pb-4.mb-3.shadow.p-3.scrolleable
+        div.border-2.vh-100.shadow.pb-10.p-2.col-3.pb-4.mb-3.p-3.bg-white(style="z-index:1")
+            .position-relative
+                svg.position-absolute(xmlns='http://www.w3.org/2000/svg' width='54' height='14' viewbox='0 0 54 14')
                     g(fill='none' fill-rule='evenodd' transform='translate(1 1)')
                         circle(cx='6' cy='6' r='6' fill='#FF5F56' stroke='#E0443E' stroke-width='.5')
                         circle(cx='26' cy='6' r='6' fill='#FFBD2E' stroke='#DEA123' stroke-width='.5')
                         circle(cx='46' cy='6' r='6' fill='#27C93F' stroke='#1AAB29' stroke-width='.5')
+                .text-center.mb-2
+                    span#cText Código en C
+
+            textarea#textcode.form-control.border-0.bg-light.pb-3.scrolleable.mb-5(readonly=true style="height: -webkit-fill-available;") Hola bebés si se puede :)
