@@ -1,6 +1,3 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 617.36 268.91">
 	<path d="M309.8,10.19,608,134.33a.09.09,0,0,1,0,.17L309.44,259.07h-.07L10.77,134.5a.1.1,0,0,1,0-.17L309.58,10.19A.28.28,0,0,1,309.8,10.19Z" transform="translate(-0.72 -0.17)" fill="#fff" stroke="#1d1d1b" stroke-miterlimit="10" stroke-width="20" />
-	<foreignObject height="100%" width="100%" style="text-align: center" >
-		<input type="text" style="background: transparent; border: none; font-size: 4rem; text-align: center; height: 268.95px; width: 100%;" onchange="this.setAttribute(`value`, this.value)">
-	</foreignObject>
 </svg>

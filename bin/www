@@ -3,7 +3,7 @@
 /**
  * Module dependencies.
  */
-
+let { exec } = require("child_process");
 let app = require('../app');
 let debug = require('debug')('uml-editor:server');
 let http = require('http');
@@ -12,7 +12,7 @@ let http = require('http');
  * Get port from environment and store in Express.
  */
 
-let port = normalizePort(process.env.PORT || '8080');
+let port = normalizePort(process.env.PORT || '80');
 app.set('port', port);
 
 /**
@@ -88,4 +88,5 @@ function onListening() {
 		? 'pipe ' + addr
 		: 'port ' + addr.port;
 	console.info('Listening on ' + bind);
+	exec(`start chrome "http://localhost:${bind.replace('port ', '')}"`)
 }

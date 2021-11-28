@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.18 268.95">
 	<rect x="10" y="10" width="598.18" height="248.95" fill="#fff" stroke="#010101" stroke-miterlimit="10" stroke-width="20" />
 	<line x1="10" y1="40.95" x2="608.18" y2="40.95" fill="none" stroke="#010101" stroke-miterlimit="10" stroke-width="10" />
-	<line x1="608.18" y1="227.88" x2="10" y2="227.88" fill="none" stroke="#010101" stroke-miterlimit="10" stroke-width="10" />
-	
+	<line x1="608.18" y1="227.88" x2="10" y2="227.88" fill="none" stroke="#010101" stroke-miterlimit="10" stroke-width="10" />	
 </svg>
