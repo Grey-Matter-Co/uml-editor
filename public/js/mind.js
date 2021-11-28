@@ -6,6 +6,7 @@ int main(int argc, char *argv[]) {
 /CODE/
 }`
 let selElem = null;
+let linkElems = {begin: null, end: null};
 let rows
 
 document.addEventListener("DOMContentLoaded", _ => {
@@ -14,6 +15,11 @@ document.addEventListener("DOMContentLoaded", _ => {
 	/**
 	 * Toolbar setup
 	 **/
+	document.querySelector('.bi-download').addEventListener(
+		"click",_=>{
+			downloadLayout();
+		}
+	);
 	let popupContainers = document.querySelectorAll('.in-popup-container')
 	for (const popupContainer of popupContainers) {
 
@@ -96,9 +102,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 						svg.querySelector('input')
 							.addEventListener('focus', _ => setSelElem(svg))
 						svg.querySelector('input')
-							.addEventListener('dblclick', _ => {
-
-							})
+							.addEventListener('dblclick', _ => setLinkElem(svg))
 						setSelElem(svg)
 					})
 			}
@@ -146,16 +150,67 @@ const setSelElem = elem => {
 }
 
 const rmSelElem = _ => {
+	rmLinkElem()
 	for (const elemModer of document.querySelectorAll('.in-mod-elem'))
 		elemModer.classList.add('disabledbutton')
 
 	selElem = null;
 }
 
-function setLinkElem() {
+const setLinkElem = (elem) => {
+	if (!linkElems.begin)
+		linkElems.begin = elem
+	else {
+		linkElems.end = elem
+		mkLink()
+		alert('Vinculando objetos :D...')
+		rmLinkElem()
+	}
+}
+const rmLinkElem = () => {
+	linkElems = { begin: null, end: null }
+}
+
+const mkLink = () => {
+	const offsetX = document.querySelector("body > main > div").getBoundingClientRect().width
+	const offsetY = document.querySelector("body > div.title").getBoundingClientRect().height
+
+	let x1, y1, x2, y2, beginCoords, endCoords;
+	beginCoords = linkElems.begin.getBoundingClientRect()
+	endCoords = linkElems.end.getBoundingClientRect()
+	x1 = (beginCoords.left-offsetX)+(beginCoords.width/2)
+	x2 = (endCoords.left-offsetX)+(endCoords.width/2)
+	y1 = (beginCoords.top-offsetY)+beginCoords.height
+	y2 = (endCoords.top-offsetY)
+
+
+	let createRow = document.createElement('div')
+	createRow.style.position="Absolute"
+	createRow.style.left=x1+"px"
+	createRow.style.top=y1+"px"
+
+	createRow.innerHTML = '<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">' +
+		'<g>' +
+			'<line id="svg_2" stroke="black" fill="black" stroke-width="5.5" x1="0" y1="0" x2="'+(x2-x1)+'" y2="'+(y2-y1)+'" stroke-linejoin="null" stroke-linecap="null"></line>' +
+			'<path id="svg_9" transform="rotate(89.3603 152.594 14.6817)" fill="black" stroke-width="1.5" d="m142.14651,24.21188l10.4478,-19.06026l10.44754,19.06026l-20.89534,0z" stroke="black"></path>' +
+		'</g>' +
+		'</svg>';
+	document.querySelector("#layout" ).appendChild(createRow)
 
 }
 
+
+
+const downloadLayout  = _ => {
+	// generacion del xml
+	let xmlLayout=document.querySelector('#layout').innerHTML;
+
+	let a = document.createElement('a');
+	a.setAttribute('href','data:text/xml:charset=utf-8, '+encodeURIComponent(xmlLayout));
+	a.setAttribute('download','diagramaDeFlujo.xml');
+	document.body.appendChild(a);
+	a.click();
+}
 
 const clearLayout = _ => {
 	for(const box of document.querySelectorAll('.box>svg'))
@@ -185,7 +240,6 @@ const deleteElement = _ => {
 	selElem.remove()
 	rmSelElem()
 }
-
 
 const generateCCode = _ => {
 	let cCode = '',
@@ -267,7 +321,7 @@ Node.prototype.codeTraslation = function () {
 		case 'input':
 			return `scanf("%d", &${val});`
 		case 'output':
-			return `fprintf("${val}");`
+			return `printf("${val}");`
 		case 'condition':
 			return `if("${val}") {}`
 		case 'loop':
@@ -303,7 +357,6 @@ Node.prototype.nextElem = function () {
 			alert("unhandle section")
 			break;
 		case 'end':
-			alert("unhandle section")
 			return null;
 
 	}
