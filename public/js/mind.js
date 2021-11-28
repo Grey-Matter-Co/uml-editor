@@ -234,8 +234,36 @@ Node.prototype.codeTraslation = function () {
 			return `//\t${val}`
 		case 'process':
 			return `${val};`
-		case 'declaration':
-			return `int ${val} = 0;`
+		case 'declaration': {
+			// nombre : variable
+			let data=val.split(":").map(txt => txt
+				.replace(/^\s+/i, '')
+				.replace(/\s+$/i, '')
+
+			);
+			data[1]=data[1].toLowerCase();
+			let defaultVal;
+			switch (data[1]) {
+
+				case 'char':
+					defaultVal='\'\'';
+					break;
+				case 'float':
+					defaultVal='0.0f';
+					break;
+				case 'double':
+					defaultVal='0.0';
+					break;
+				case 'int':
+					defaultVal='0';
+					break;
+				case '':
+					defaultVal='0';
+					data[1]='int';
+					break;
+			}
+			return `${data[1]} ${data[0]} = ${defaultVal};`
+		}
 		case 'input':
 			return `scanf("%d", &${val});`
 		case 'output':

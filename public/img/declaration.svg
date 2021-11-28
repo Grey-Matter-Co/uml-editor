@@ -1,5 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.18 268.95">
-	<rect x="10" y="10" width="598.18" height="248.95" fill="#fff" stroke="#010101" stroke-miterlimit="10" stroke-width="20" />
-	<line x1="10" y1="40.95" x2="608.18" y2="40.95" fill="none" stroke="#010101" stroke-miterlimit="10" stroke-width="10" />
-	<line x1="608.18" y1="227.88" x2="10" y2="227.88" fill="none" stroke="#010101" stroke-miterlimit="10" stroke-width="10" />	
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.82 268.95"><polygon points="10 10 608.82 10 608.82 50.24 10 50.31 10 218.88 608.82 218.71 608.82 258.95 10 258.95 10 218.88 608.82 218.71 608.82 50.24 10 50.31 10 10" style="fill:#fff;stroke:#010101;stroke-miterlimit:10;stroke-width:20px"/></svg>
