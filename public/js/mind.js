@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", _ => {
 	for (let i=0; i <100; i++) {
 		let box = document.createElement('div')
 		box.classList.add('box')
-		box.setAttribute('col', `${(i%rows) +1}`)
-		box.setAttribute('row', `${parseInt(i/rows)+1}`)
+		box.setAttribute('col', `${(i%rows)}`)
+		box.setAttribute('row', `${parseInt(i/rows)}`)
 		box.setAttribute('draggable', 'true')
 		box.addEventListener('click', _ => {if (box.innerHTML==='') rmSelElem()})
 		layout.appendChild(box)
@@ -95,6 +95,10 @@ document.addEventListener("DOMContentLoaded", _ => {
 						svg.classList.add(tipo)
 						svg.querySelector('input')
 							.addEventListener('focus', _ => setSelElem(svg))
+						svg.querySelector('input')
+							.addEventListener('dblclick', _ => {
+
+							})
 						setSelElem(svg)
 					})
 			}
@@ -132,24 +136,28 @@ document.addEventListener("DOMContentLoaded", _ => {
 	})
 });
 
-let isSymbol = (element) =>
+const isSymbol = element =>
 	/^uml-/i.test(element.id)
 
-function setSelElem(elem) {
+const setSelElem = elem => {
 	for (const elemModer of document.querySelectorAll('.in-mod-elem'))
 		elemModer.classList.remove('disabledbutton')
 	selElem = elem
 }
 
-function rmSelElem() {
+const rmSelElem = _ => {
 	for (const elemModer of document.querySelectorAll('.in-mod-elem'))
 		elemModer.classList.add('disabledbutton')
 
 	selElem = null;
 }
 
+function setLinkElem() {
 
-function clearLayout() {
+}
+
+
+const clearLayout = _ => {
 	for(const box of document.querySelectorAll('.box>svg'))
 		if (box.innerHTML !=='') {
 			setSelElem(box)
@@ -157,43 +165,37 @@ function clearLayout() {
 		}
 }
 
-function changeFontsz(input) {
-	if (selElem)
-		selElem.querySelector('input').style.fontSize = `${input.value<1?'1':input.value}rem`
-}
+const changeFontsz = input  => selElem
+	? selElem.querySelector('input').style.fontSize = `${input.value<1?'1':input.value}rem`
+	: null
 
-function changeBg(input){
-	if (selElem)
-		selElem.firstElementChild.setAttribute('fill', input.value)
-}
+const changeBg = input => selElem
+	? selElem.firstElementChild.setAttribute('fill', input.value)
+	: null
 
-function changeBorder(input){
-	if (selElem)
-		selElem.firstElementChild.setAttribute('stroke', input.value)
-}
+const changeBorder = input => selElem
+	? selElem.firstElementChild.setAttribute('stroke', input.value)
+	: null
 
-function deleteElement(){
+const deleteElement = _ => {
 	if (selElem.classList.contains("start")||selElem.classList.contains("end")) {
 		document.querySelector(`[id$=${selElem.classList.value}]`).classList.remove('dragged');
 		document.querySelector(`[id$=${selElem.classList.value}]`).setAttribute('draggable', 'true');
 	}
 	selElem.remove()
-
 	rmSelElem()
 }
 
 
-function generateCCode() {
+const generateCCode = _ => {
 	let cCode = '',
 		lvl = 1,
 		elem = document.querySelector('svg.start').parentNode
 
 	while (elem) {
 		let tabs = ''
-		for (let i=0; i<lvl; i++)
-			tabs += '\t'
+		for (let i=0; i++<lvl; tabs += '\t');
 
-		console.log(`[${elem.elemCoords().toString()}]${elem.elemType()}> ${elem.elemValue()}`)
 
 		cCode += tabs+elem.codeTraslation()
 		elem = elem.nextElem()
@@ -246,27 +248,26 @@ Node.prototype.codeTraslation = function () {
 			return `return 0;\n\t//\t${val}`
 
 	}
-
 }
 
 /**
- * @returns {Node}
+ * @returns {Node | Node[]}
  */
 Node.prototype.nextElem = function () {
+
 	switch (this.elemType()) {
 		// Next elem us only back
 		case 'start':
 		case 'process':
 		case 'declaration':
 		case 'input':
-		case 'output':
+		case 'output': {
 			let [x, y] = this.elemCoords(),
-				box = document.querySelector(`#layout > div:nth-child(${x+(y*rows)})`)
+				box = document.querySelector(`#layout > div:nth-child(${++x+(++y*rows)})`)
 			return box.innerHTML !== ''
 				?box
 				:null
-
-
+		}
 		case 'condition':
 			alert("unhandle section")
 			break;
