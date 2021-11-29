@@ -5,6 +5,13 @@ const CODEBLOCK =
 int main(int argc, char *argv[]) {
 /CODE/
 }`
+/**
+ * @type {JSON[]} :clown:
+ * @field node {Node}
+ * @field type {String}
+ * @field connections {Number[]}
+ */
+let flow = []
 let selElem = null;
 let linkElems = {begin: null, end: null};
 let rows
@@ -126,6 +133,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 			item.classList.remove("over");
 		});
 		dragSrcEl = null
+		updateUI()
 	}
 
 	let items = document.querySelectorAll("#layout .box, [id^=\"uml-\"]");
@@ -171,10 +179,9 @@ const rmSelElem = _ => {
 const setLinkElem = (elem) => {
 	if (!linkElems.begin)
 		linkElems.begin = elem
-	else {
+	else if (linkElems.begin !== elem) {
 		linkElems.end = elem
 		mkLink()
-		alert('Vinculando objetos :D...')
 		rmLinkElem()
 	}
 }
@@ -183,26 +190,76 @@ const rmLinkElem = () => {
 }
 
 const mkLink = () => {
+	let iBegin, iEnd,
+		isLinked;
+	// Adds begin element
+	isLinked = flow.some((UMLElem, idx) => {
+		if (UMLElem.node === linkElems.begin) {
+			iBegin = idx;
+			return true
+		} else
+			return false
+	})
+	if (!isLinked)
+		iBegin = flow.push({
+			node: linkElems.begin,
+			type: linkElems.begin.parentNode.elemType(),
+			connections: []
+		})-1
+	// Adds end element
+	isLinked = flow.some((UMLElem, idx) => {
+		if (UMLElem.node === linkElems.end)
+		{ iEnd = idx; return true }
+		else
+			return false
+	})
+	if (!isLinked)
+		iEnd = flow.push({
+			node: linkElems.end,
+			type: linkElems.end.parentNode.elemType(),
+			connections: []
+		})-1
+
+	flow[iBegin].connections.push(iEnd)
+	updateUI()
+	console.log("flow: "+JSON.stringify(flow, null, 4))
+}
+
+const drawLink = (UMLBegin, UMLEnd) => {
 	const offsetX = document.querySelector("body > main > div").getBoundingClientRect().width
 	const offsetY = document.querySelector("body > div.title").getBoundingClientRect().height
 
 	let x1, y1, x2, y2, beginCoords, endCoords;
-	beginCoords = linkElems.begin.getBoundingClientRect()
-	endCoords = linkElems.end.getBoundingClientRect()
-	x1 = (beginCoords.left-offsetX)+(beginCoords.width/2)
-	x2 = (endCoords.left-offsetX)+(endCoords.width/2)
-	y1 = (beginCoords.top-offsetY)+beginCoords.height
-	y2 = (endCoords.top-offsetY)
+	beginCoords = UMLBegin.getBoundingClientRect()
+	endCoords = UMLEnd.getBoundingClientRect()
+	if (beginCoords.left<endCoords.left) {
+		x1 = (beginCoords.left-offsetX)+(beginCoords.width/2)-10
+		x2 = (endCoords.left-offsetX)+(endCoords.width/2)-10
+	}
+	else {
+		x1 = (endCoords.left-offsetX)+(endCoords.width/2)-10
+		x2 = (beginCoords.left-offsetX)+(beginCoords.width/2)-10
+	}
+	if (beginCoords.top<endCoords.top) {
+		y1 = (beginCoords.top-offsetY)+beginCoords.height-10
+		y2 = (endCoords.top-offsetY)
+	}
+	else {
+		y1 = (endCoords.top-offsetY)+endCoords.height-10
+		y2 = (beginCoords.top-offsetY)
+	}
+
 
 
 	let createRow = document.createElement('div')
+	createRow.classList.add('connection')
 	createRow.style.position="Absolute"
 	createRow.style.left=x1+"px"
 	createRow.style.top=y1+"px"
 
-	createRow.innerHTML = '<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">' +
+	createRow.innerHTML = '<svg width="'+(Math.abs(x2-x1)+20)+'" height="'+(Math.abs(y2-y1))+'" xmlns="http://www.w3.org/2000/svg">' +
 		'<g>' +
-			'<line id="svg_2" stroke="black" fill="black" stroke-width="5.5" x1="0" y1="0" x2="'+(x2-x1)+'" y2="'+(y2-y1)+'" stroke-linejoin="null" stroke-linecap="null"></line>' +
+			'<line id="svg_2" stroke="black" fill="black" stroke-width="5.5" x1="0" y1="0" x2="'+Math.abs(x2-x1)+'" y2="'+Math.abs(y2-y1)+'" stroke-linejoin="null" stroke-linecap="null"></line>' +
 			'<path id="svg_9" transform="rotate(89.3603 152.594 14.6817)" fill="black" stroke-width="1.5" d="m142.14651,24.21188l10.4478,-19.06026l10.44754,19.06026l-20.89534,0z" stroke="black"></path>' +
 		'</g>' +
 		'</svg>';
