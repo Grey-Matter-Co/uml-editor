@@ -35,8 +35,8 @@ document.addEventListener("DOMContentLoaded", _ => {
 	 */
 	let layout = document.querySelector('#layout')
 
-	layout.addEventListener('dragend', () => generateCCode())
-	layout.addEventListener('change', () => generateCCode())
+	layout.addEventListener('dragend', () => updateUI())
+	layout.addEventListener('change', () => updateUI())
 	rows = getComputedStyle(layout).gridTemplateColumns.split(' ').length
 	for (let i=0; i <100; i++) {
 		let box = document.createElement('div')
@@ -128,7 +128,6 @@ document.addEventListener("DOMContentLoaded", _ => {
 		dragSrcEl = null
 	}
 
-
 	let items = document.querySelectorAll("#layout .box, [id^=\"uml-\"]");
 	items.forEach(function (item) {
 		item.addEventListener("dragstart", handleDragStart, false);
@@ -139,6 +138,18 @@ document.addEventListener("DOMContentLoaded", _ => {
 		item.addEventListener("dragend", handleDragEnd, false);
 	})
 });
+
+function updateUI(){
+	generateCCode()
+	for (const divConn of document.querySelectorAll('#layout > .connection'))
+		divConn.remove()
+
+	for (const UMLBegin of flow) {
+		for (const idxEnd of UMLBegin.connections) {
+			drawLink(UMLBegin.node, flow[idxEnd].node)
+		}
+	}
+}
 
 const isSymbol = element =>
 	/^uml-/i.test(element.id)
@@ -250,7 +261,6 @@ const generateCCode = _ => {
 		let tabs = ''
 		for (let i=0; i++<lvl; tabs += '\t');
 
-
 		cCode += tabs+elem.codeTraslation()
 		elem = elem.nextElem()
 		if (elem)
@@ -358,7 +368,6 @@ Node.prototype.nextElem = function () {
 			break;
 		case 'end':
 			return null;
-
 	}
-
 }
+
