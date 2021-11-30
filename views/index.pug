@@ -1,8 +1,8 @@
 extends layout
 
 block content
-    .title
-        p Flowchart
+    .title.shadow
+        p.position-relative Flowchart
     main.row.w-100.m-0
         // control de herramientas
         .flex-shrink-0.col-2.vh-100.p-3.shadow.scrolleable.bg-white(style="z-index:1")
@@ -32,12 +32,14 @@ block content
                 span.fs-5.fw-semibold Símbolos
             ul.list-unstyled.ps-0.justify-content-center
                 #uml-start(title="Inicio" draggable="true")
+                    P.pt-3 Incio
                 #uml-process(title="Proceso" draggable="true")
                 #uml-condition(title="Condición" draggable="true")
                 #uml-declaration(title="Declaración" draggable="true")
                 #uml-input(title="Entrada" draggable="true")
                 #uml-output(title="Salida" draggable="true")
                 #uml-end(title="Fin" draggable="true")
+                    p.pt-3 Fin
 
         // contaniner será el layout del editor
         //canvas#canvas.col-7.bg-light.vh-100.scrollbar.scrolleable(width="800" height="600")
