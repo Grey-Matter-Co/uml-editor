@@ -37,8 +37,8 @@ main > div { max-height: 100% }
 #layout{
 	display: grid;
 	grid-template-columns: repeat(7, 1fr);
-	//grid-template-rows:    repeat(17, 1fr);
-	//gap: 10px;
+	grid-template-rows:    repeat(14, 1fr);
+	gap: 15px;
 }
 
 #cText{ font-family: "Bebas Neue"}
@@ -55,6 +55,11 @@ main > div { max-height: 100% }
 .box {
 	border-radius: .5em;
 	padding: 8px;
+	z-index: 1;
+}
+
+.connection {
+	z-index: 0;
 }
 
 //.box::after {

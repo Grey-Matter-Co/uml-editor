@@ -10,23 +10,20 @@ block content
             .d-flex.justify-content-between
                 i.bi.bi-download(title="Descargar Diagrama")
                 i.bi.bi-upload(title="Cargar Diagrama")
-                i.bi.bi-trash(title="Eliminar Diagrama" onclick="clearLayout()")
+                i.bi.bi-trash(title="Eliminar Diagrama")
                 i.bi.bi-type.in-mod-elem.in-popup-container.disabledbutton(title="Editar tamaño texto")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
-                        input(type='number' value='4' min=1 step='1' oninput="changeFontsz(this)")
-                        //.quantity-nav
-                            i.bi.bi-plus.quantity-button.quantity-up(onclick="let input = this.parentElement.parentElement.firstElementChild; input.stepUp();")
-                            i.bi.bi-dash.quantity-button.quantity-down(onclick="let input = this.parentElement.parentElement.firstElementChild; input.stepDown();")
+                        input#in-font-sz(type='number' value='4' min=1 step='1')
                 i.bi.bi-paint-bucket.in-mod-elem.in-popup-container.disabledbutton(title="Modificar fondo")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
-                        input#in-color-bg(type="color" oninput="changeBg(this)")
+                        input#in-color-bg(type="color")
                 i.bi.bi-palette.in-mod-elem.in-popup-container.disabledbutton(title="Modificar contorno")
                 .position-relative.d-none
                     .in-popup(tabindex="-1")
-                        input#in-color-border(type="color" oninput="changeBorder(this)")
-                i.bi.bi-x-lg.in-mod-elem.disabledbutton(title="Eliminar Elemento" onclick="deleteElement()")
+                        input#in-color-bdr(type="color")
+                i.bi.bi-x-lg.in-mod-elem.disabledbutton(title="Eliminar Elemento")
 
             .d-flex.align-items-center.pb-1.pt-3.mb-3.border-bottom
                 span.fs-5.fw-semibold Símbolos

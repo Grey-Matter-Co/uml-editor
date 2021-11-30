@@ -302,16 +302,18 @@ const rmSelElem = _ => {
 	rmLinkElem()
 	for (const elemModer of document.querySelectorAll('.in-mod-elem'))
 		elemModer.classList.add('disabledbutton')
-
 	selElem = null;
 }
 
+/**
+ * @param elem {HTMLDivElement}
+ */
 const setLinkElem = (elem) => {
 	if (!linkElems.begin)
 		linkElems.begin = elem
 	else if (linkElems.begin !== elem) {
 		linkElems.end = elem
-		mkLink()
+		linkUMLElems()
 		rmLinkElem()
 	}
 }
@@ -343,9 +345,9 @@ const findUMLElem = (coords) => {
 const updUMLCoords = (oldCoords, newCoords) =>
 	{ flow[findUMLElem(oldCoords)].ref = newCoords }
 
-const mkLink = () => {
-	let iBegin, iEnd,
-		isLinked;
+const linkUMLElems = () => {
+	let iBegin = findUMLElem(getCoords(linkElems.begin)),
+		iEnd   = findUMLElem(getCoords(linkElems.end));
 	// Adds begin element
 	if (iBegin<0)
 		iBegin = flow.push({
@@ -390,6 +392,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 	createRow.style.position="Absolute"
 	createRow.style.left=x1+"px"
 	createRow.style.top=y1+"px"
+	let xor = !((!xFlag&&yFlag) || (xFlag&&!yFlag))
 
 	// <path stroke="black" fill="none"  stroke-width=${strk} d="m${(xFlag?(strk/2):x2+strk)+7.25},${yFlag?0:y2+10} v${yF*y2/2},0  h${xF*Math.abs(x2)+(xFlag?0:5)},0 v${yF*y2/2},0"></path>
 	// <path stroke="black" fill="black" stroke-width="1.5"   d="m0,0 l-10,-20 l20,0 z" transform="rotate(${yFlag?'0':'180 10 5'}) translate(${(xFlag?yF*x2:0)+10} ${(yFlag?y2:0)+10})"></path>
@@ -461,9 +464,18 @@ const getUMLElemConDim = (domRect1, domRect2) => () {
 const getElemSVGByReference = (x, y) =>
 	document.querySelector(`#layout > div:nth-child(${x+(--y*colsN)}) > svg`)
 
+/**
+ *	Buttons handle
+ */
 
-const downloadLayout  = _ => {
-	// generacion del xml
+function popupBtn()
+	{ this.nextSibling.classList.toggle('d-none') }
+
+function loadLayout() {
+	alert("funcion sin implementar")
+}
+function dwlLayout() {
+	// XML generation
 	let xmlLayout=document.querySelector('#layout').innerHTML;
 
 	let a = document.createElement('a');
@@ -480,68 +492,74 @@ function clrLayout() {
 			setSelElem(box)
 			deleteElement()
 		}
+	flow = []
 }
 
-const changeFontsz = input  => selElem
-	? selElem.querySelector('input').style.fontSize = `${input.value<1?'1':input.value}rem`
-	: null
+function changeSz() {
+	if (selElem)
+		selElem.querySelector('input').style.fontSize = `${this.value<1?'1':this.value}rem`
+}
 
-const changeBg = input => selElem
-	? selElem.firstElementChild.setAttribute('fill', input.value)
-	: null
+function changeBg() {
+	if (selElem)
+		selElem.querySelector('svg > *').setAttribute('fill', this.value)
+}
 
-const changeBorder = input => selElem
-	? selElem.firstElementChild.setAttribute('stroke', input.value)
-	: null
+function changeBdr() {
+	if (selElem)
+		selElem.querySelector('svg > *').setAttribute('stroke', this.value)
+}
 
-const deleteElement = _ => {
-	if (selElem.classList.contains("start")||selElem.classList.contains("end")) {
-		document.querySelector(`[id$=${selElem.classList.value}]`).classList.remove('dragged');
-		document.querySelector(`[id$=${selElem.classList.value}]`).setAttribute('draggable', 'true');
+function deleteElement() {
+	let umlType = selElem.querySelector('svg').classList.value
+	if (umlType==="start"||umlType==="end") {
+		document.querySelector(`[id$=${umlType}]`).classList.remove('dragged');
+		document.querySelector(`[id$=${umlType}]`).setAttribute('draggable', 'true');
 	}
-	selElem.remove()
+	// TODO rm element if it's in flow
+	selElem.querySelector('svg').remove()
 	rmSelElem()
 }
 
 const generateCCode = _ => {
-	let cCode = '',
-		lvl = 1,
-		elem = document.querySelector('svg.start').parentNode
-
-	while (elem) {
-		let tabs = ''
-		for (let i=0; i++<lvl; tabs += '\t');
-
-		cCode += tabs+elem.codeTraslation()
-		elem = elem.nextElem()
-		if (elem)
-			cCode += '\n'
-	}
-	document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', cCode)
+	// let cCode = '',
+	// 	lvl = 1,
+	// 	elem = document.querySelector('svg.start').parentNode
+	//
+	// while (elem) {
+	// 	let tabs = ''
+	// 	for (let i=0; i++<lvl; tabs += '\t') {}
+	//
+	// 	cCode += tabs+elem.codeTraslation()
+	// 	elem = elem.nextElem()
+	// 	if (elem)
+	// 		cCode += '\n'
+	// }
+	// document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', cCode)
 }
 
 /**
  * @returns {String}
  */
-Node.prototype.elemType = function ()
+HTMLDivElement.prototype.elemType = function ()
 	{ return this.querySelector('svg').classList.value }
 
 /**
  * @returns {String}
  */
-Node.prototype.elemValue = function ()
+HTMLDivElement.prototype.elemValue = function ()
 	{ return this.querySelector('input').value }
 
 /**
  * @returns {Number[]}
  */
-Node.prototype.elemCoords = function ()
+HTMLDivElement.prototype.elemCoords = function ()
 	{ return [parseInt(this.getAttribute('col')), parseInt(this.getAttribute('row'))] }
 
 /**
  * @returns {String}
  */
-Node.prototype.codeTraslation = function () {
+HTMLDivElement.prototype.codeTraslation = function () {
 	const val = this.elemValue()
 	switch (this.elemType()) {
 		// Next elem us only back
@@ -554,12 +572,10 @@ Node.prototype.codeTraslation = function () {
 			let data=val.split(":").map(txt => txt
 				.replace(/^\s+/i, '')
 				.replace(/\s+$/i, '')
-
 			);
 			data[1]=data[1].toLowerCase();
 			let defaultVal;
 			switch (data[1]) {
-
 				case 'char':
 					defaultVal='\'\'';
 					break;
@@ -569,12 +585,11 @@ Node.prototype.codeTraslation = function () {
 				case 'double':
 					defaultVal='0.0';
 					break;
+				case '':
+					data[1]='int';
+					//don't break 'cause can execute next case
 				case 'int':
 					defaultVal='0';
-					break;
-				case '':
-					defaultVal='0';
-					data[1]='int';
 					break;
 			}
 			return `${data[1]} ${data[0]} = ${defaultVal};`
@@ -594,9 +609,9 @@ Node.prototype.codeTraslation = function () {
 }
 
 /**
- * @returns {Node | Node[]}
+ * @returns {HTMLDivElement | HTMLDivElement[]}
  */
-Node.prototype.nextElem = function () {
+HTMLDivElement.prototype.nextElem = function () {
 
 	switch (this.elemType()) {
 		// Next elem us only back
@@ -612,11 +627,9 @@ Node.prototype.nextElem = function () {
 				:null
 		}
 		case 'condition':
-			alert("unhandle section")
-			break;
+			throw ("unhandle section")
 		case 'loop':
-			alert("unhandle section")
-			break;
+			throw("unhandle section")
 		case 'end':
 			return null;
 	}
