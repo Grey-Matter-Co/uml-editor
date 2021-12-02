@@ -494,8 +494,8 @@ function  encodeUML() {
 
 		xmlElem.setAttribute('type', umlElem.type)
 		xmlElem.setAttribute('value', divElem.umlValue())
-		xmlElem.setAttribute('background-color', divElem.umlBgColor())
-		xmlElem.setAttribute('border-color', divElem.umlBdrColor())
+		xmlElem.setAttribute('fill', divElem.umlBgColor())
+		xmlElem.setAttribute('stroke', divElem.umlBdrColor())
 		xmlElem.setAttribute('font-size', divElem.umlFtSz())
 
 		xmlRef.setAttribute('x', umlElem.ref.x.toString())
@@ -514,36 +514,10 @@ function  encodeUML() {
 	return new XMLSerializer().serializeToString(xmlDoc);
 }
 
-/** Estructura del XML
- * <flow
- *  <item type="start" value="Inicio" background-color="#fff" border-color="#010101" font-size="4rem">
- *      <ref x="2" y="3" />
- *      <cons>
- *             <index value="1" />
- *             ...
- *      </cons>
- *  </item>
- *      ...
- * </flow>
- */
-
-/** Estructura de flow: pd es un arreglo
- * [
- *  {
- * 		type: string,
- * 		ref: {
- * 		 	x: number,
- * 		 	y: number
- * 		 },
- * 		cons: number[]
- *  },
- * ...]
- */
-
-
 function decodeUML(xmlString) {
+	clrLayout()
 	let xmlDoc = new DOMParser().parseFromString(xmlString, "text/xml"),
-		xmlFlow = xmlDoc.querySelector('flow')
+		xmlFlow = xmlDoc.querySelector('flow')	// <- xml
 
 	flow = [];
 
@@ -621,7 +595,17 @@ function popupBtn()
 	{ this.nextSibling.classList.toggle('d-none') }
 
 function loadLayout() {
-	alert("funcion sin implementar")
+	document.querySelector('#in-load-layout').addEventListener('input', function (ev) {
+		let fr = new FileReader();
+		fr.onload=function() {
+			decodeUML(fr.result)
+			updateUI()
+		}
+
+		fr.readAsText(this.files[0]);
+	})
+	document.querySelector('#in-load-layout').click()
+	document.querySelector('#in-load-layout').value = ""
 }
 function dwlLayout() {
 	let a = document.createElement('a');
@@ -710,6 +694,7 @@ HTMLDivElement.prototype.umlCoords = function ()
  */
 HTMLDivElement.prototype.uml2CCode = function () {
 	const val = this.umlValue()
+if
 	switch (this.umlType()) {
 		// Next elem us only back
 		case 'start':

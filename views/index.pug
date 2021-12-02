@@ -10,6 +10,8 @@ block content
             .d-flex.justify-content-between
                 i.bi.bi-download(title="Descargar Diagrama")
                 i.bi.bi-upload(title="Cargar Diagrama")
+                .d-none
+                    input#in-load-layout(type="file" multiple="false" accept=".xml")
                 i.bi.bi-trash(title="Eliminar Diagrama")
                 i.bi.bi-type.in-mod-elem.in-popup-container.disabledbutton(title="Editar tamaño texto")
                 .position-relative.d-none
