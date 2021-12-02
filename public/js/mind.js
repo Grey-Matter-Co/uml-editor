@@ -548,29 +548,34 @@ function decodeUML(xmlString) {
 	flow = [];
 
 	for (const xmlItem of xmlFlow.querySelectorAll('item')) {
-		let xmlRef
-
-		flow.push({
-			type: xmlItem.getAttribute('type'),
-			ref: {
-				x: parseInt('x'),
-				y: parseInt('y') //chi?
+		let xmlRef  = xmlItem.querySelector('ref'),
+			pos = {
+				x: parseInt(xmlRef.getAttribute('x')),
+				y: parseInt(xmlRef.getAttribute('y'))
 			},
-			cons: []
-		})
+			flowIdx = flow.push({
+				type: xmlItem.getAttribute('type'),
+				ref: pos,
+				cons: []
+			})-1
 
-		for(const xmlIndex of xmlFlow.querySelectorAll('cons > index')) {
-			cons.push(
-				parseInt()
-		})
-
-		let divUML = getElemDivByReference(x, y)
-
-		for(const xmlIndex of xmlFlow.querySelectorAll('div > index')){
-
-
+		for(const xmlIndex of xmlItem.querySelectorAll('cons > index')) {
+			flow[flowIdx].cons
+				.push( parseInt(xmlIndex.getAttribute('value')))
 		}
-		// asignar font-size, background, birde y valor// birde
+
+
+		let divUML = getElemDivByReference(pos.x, pos.y);
+		divUML.innerHTML = SVGs[flow[flowIdx].type]
+		let trazo = divUML.querySelector('svg>*'),
+			svg   = divUML.querySelector('svg'),
+			input = divUML.querySelector('input');
+
+		svg.setAttribute('class',xmlItem.getAttribute('type'));
+		input.style.fontSize = xmlItem.getAttribute('font-size');
+		input.setAttribute('value',xmlItem.getAttribute('value'));
+		trazo.setAttribute('stroke',xmlItem.getAttribute('stroke'));
+		trazo.setAttribute('fill',xmlItem.getAttribute('fill'));
 
 	}
 }
