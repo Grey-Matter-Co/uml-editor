@@ -227,9 +227,16 @@ function handleDrop_Grid(e) {
 			let idx = findUMLElem(getCoords(this))
 			if (idx>=0)
 				flow[idx].type = umlType
-			
+
 			setSelElem(this)
 			deleteElement()
+		}
+		else {
+			flow.push({
+				ref: getCoords(this),
+				type: umlType,
+				cons: []
+			})
 		}
 		this.innerHTML = SVGs[umlType]
 		let svg = this.querySelector('svg'),
@@ -261,7 +268,7 @@ function handleDragEnd() {
  * 	UML Logic
  */
 function updateUI(){
-	generateCCode()
+	document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', generateCCode())
 	for (const divConn of document.querySelectorAll('#layout > .connection'))
 		divConn.remove()
 
@@ -355,14 +362,14 @@ const linkUMLElems = () => {
 	if (iBegin<0)
 		iBegin = flow.push({
 			ref: getCoords(linkElems.begin),
-			type: linkElems.begin.elemType(),
+			type: linkElems.begin.umlType(),
 			cons: []
 		})-1
 	// Adds end element
 	if (iEnd<0)
 		iEnd = flow.push({
-			ref: getCoords(linkElems.end),
-			type: linkElems.end.elemType(),
+			ref: getCoords(linkElems.end.umlCoords()),
+			type: linkElems.end.umlType(),
 			cons: []
 		})-1
 
@@ -399,8 +406,6 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 		svgH = y2+long/2-ymid,
 		yXtr = yFlag?22.5:15
 
-
-	// <path stroke="black" fill="none"  stroke-width=${strk} d="m${(xFlag?(strk/2):x2+strk)+7.25},${yFlag?0:y2+10} v${yF*y2/2},0  h${xF*Math.abs(x2)+(xFlag?0:5)},0 v${yF*y2/2},0"></path>
 	console.log(`xFlag ${xFlag} | yFlag ${yFlag}`)
 	createRow.innerHTML =
 `<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px); xmlns="http://www.w3.org/2000/svg">
@@ -411,7 +416,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 }
 
 /**
- -(* 	(x1,y1)--------------)
+ * 	(x1,y1)--------------
  * 	   |				|
  * 	   |				|
  * 	   |		<3		|
@@ -467,7 +472,141 @@ const getUMLElemConDim = (domRect1, domRect2) => {
  * @return {SVGElement}
  */
 const getElemSVGByReference = (x, y) =>
-	document.querySelector(`#layout > div:nth-child(${x+(--y*colsN)}) > svg`)
+	getElemDivByReference(x, y).querySelector('svg')
+
+/**
+ * @param x: number
+ * @param y: number
+ * @return {HTMLDivElement}
+ */
+const getElemDivByReference = (x, y) =>
+	document.querySelector(`#layout > div:nth-child(${x+(--y*colsN)})`)
+
+function  encodeUML() {
+	let xmlDoc = document.implementation.createDocument(null, "flow"),
+		xmlFlow = xmlDoc.querySelector('flow')
+
+	flow.forEach(umlElem => {
+		let xmlElem = xmlDoc.createElement('item')
+		let divElem = getElemDivByReference(umlElem.ref.x, umlElem.ref.y),
+			xmlRef  = xmlDoc.createElement('ref'),
+			xmlCons = xmlDoc.createElement('cons')
+
+		xmlElem.setAttribute('type', umlElem.type)
+		xmlElem.setAttribute('value', divElem.umlValue())
+		xmlElem.setAttribute('background-color', divElem.umlBgColor())
+		xmlElem.setAttribute('border-color', divElem.umlBdrColor())
+		xmlElem.setAttribute('font-size', divElem.umlFtSz())
+
+		xmlRef.setAttribute('x', umlElem.ref.x.toString())
+		xmlRef.setAttribute('y', umlElem.ref.y.toString())
+
+		umlElem.cons.forEach(con => {
+			let xmlIndex = xmlDoc.createElement('index')
+			xmlIndex.setAttribute('value', con.toString())
+			xmlCons.appendChild(xmlIndex)
+		})
+
+		xmlElem.appendChild(xmlRef)
+		xmlElem.appendChild(xmlCons)
+		xmlFlow.appendChild(xmlElem)
+	})
+	return new XMLSerializer().serializeToString(xmlDoc);
+}
+
+/** Estructura del XML
+ * <flow
+ *  <item type="start" value="Inicio" background-color="#fff" border-color="#010101" font-size="4rem">
+ *      <ref x="2" y="3" />
+ *      <cons>
+ *             <index value="1" />
+ *             ...
+ *      </cons>
+ *  </item>
+ *      ...
+ * </flow>
+ */
+
+/** Estructura de flow: pd es un arreglo
+ * [
+ *  {
+ * 		type: string,
+ * 		ref: {
+ * 		 	x: number,
+ * 		 	y: number
+ * 		 },
+ * 		cons: number[]
+ *  },
+ * ...]
+ */
+
+
+function decodeUML(xmlString) {
+	let xmlDoc = new DOMParser().parseFromString(xmlString, "text/xml"),
+		xmlFlow = xmlDoc.querySelector('flow')
+
+	flow = [];
+
+	for (const xmlItem of xmlFlow.querySelectorAll('item')) {
+		let xmlRef
+
+		flow.push({
+			type: xmlItem.getAttribute('type'),
+			ref: {
+				x: parseInt('x'),
+				y: parseInt('y') //chi?
+			},
+			cons: []
+		})
+
+		for(const xmlIndex of xmlFlow.querySelectorAll('cons > index')) {
+			cons.push(
+				parseInt()
+		})
+
+		let divUML = getElemDivByReference(x, y)
+
+		for(const xmlIndex of xmlFlow.querySelectorAll('div > index')){
+
+
+		}
+		// asignar font-size, background, birde y valor// birde
+
+	}
+}
+
+/**
+ * @param flowIdx {number}
+ * @param lvl {number}
+ * @returns {string}
+ */
+const generateCCode = (flowIdx = undefined, lvl = 1) => {
+	let cCode = '',
+		umlElem, requiresBlock = false
+
+	if (flowIdx===undefined)
+		flow.forEach((uml, i) => {
+			if (uml.type === "start")
+				flowIdx = i
+		})
+
+	umlElem = flow[flowIdx];
+
+	requiresBlock = umlElem.type==='if' || umlElem.type==='while' || umlElem.type==='do-while' || umlElem.type==='condition'
+
+	if (umlElem.type==='do-while')
+		cCode += "do {"
+	else
+		cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
+
+	umlElem.cons.forEach(cons => {
+		cCode += generateCCode(cons, lvl)
+	})
+
+	cCode += `${requiresBlock?"} "+umlElem.type==="do-while"?getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode():""+"\n":""}`
+
+	return cCode;
+}
 
 /**
  *	Buttons handle
@@ -480,11 +619,8 @@ function loadLayout() {
 	alert("funcion sin implementar")
 }
 function dwlLayout() {
-	// XML generation
-	let xmlLayout=document.querySelector('#layout').innerHTML;
-
 	let a = document.createElement('a');
-	a.setAttribute('href','data:text/xml:charset=utf-8, '+encodeURIComponent(xmlLayout));
+	a.setAttribute('href','data:text/xml:charset=utf-8, '+encodeURIComponent(encodeUML()));
 	a.setAttribute('download','diagramaDeFlujo.xml');
 	document.body.appendChild(a);
 	a.click();
@@ -526,54 +662,56 @@ function deleteElement() {
 	rmSelElem()
 }
 
-const generateCCode = _ => {
-	// let cCode = '',
-	// 	lvl = 1,
-	// 	elem = document.querySelector('svg.start').parentNode
-	//
-	// while (elem) {
-	// 	let tabs = ''
-	// 	for (let i=0; i++<lvl; tabs += '\t') {}
-	//
-	// 	cCode += tabs+elem.codeTraslation()
-	// 	elem = elem.nextElem()
-	// 	if (elem)
-	// 		cCode += '\n'
-	// }
-	// document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', cCode)
-}
+
 
 /**
  * @returns {String}
  */
-HTMLDivElement.prototype.elemType = function ()
+HTMLDivElement.prototype.umlType = function ()
 	{ return this.querySelector('svg').classList.value }
 
 /**
  * @returns {String}
  */
-HTMLDivElement.prototype.elemValue = function ()
+HTMLDivElement.prototype.umlValue = function ()
 	{ return this.querySelector('input').value }
+
+/**
+ * @returns {String}
+ */
+HTMLDivElement.prototype.umlBgColor = function ()
+	{ return this.querySelector('svg > *').getAttribute('fill') }
+
+/**
+ * @returns {String}
+ */
+HTMLDivElement.prototype.umlBdrColor = function ()
+	{ return this.querySelector('svg > *').getAttribute('stroke') }
+
+/**
+ * @returns {String}
+ */
+HTMLDivElement.prototype.umlFtSz = function ()
+	{ return this.querySelector('input').style.fontSize }
 
 /**
  * @returns {Number[]}
  */
-HTMLDivElement.prototype.elemCoords = function ()
+HTMLDivElement.prototype.umlCoords = function ()
 	{ return [parseInt(this.getAttribute('col')), parseInt(this.getAttribute('row'))] }
 
 /**
  * @returns {String}
  */
-HTMLDivElement.prototype.codeTraslation = function () {
-	const val = this.elemValue()
-	switch (this.elemType()) {
+HTMLDivElement.prototype.uml2CCode = function () {
+	const val = this.umlValue()
+	switch (this.umlType()) {
 		// Next elem us only back
 		case 'start':
 			return `//\t${val}`
 		case 'process':
 			return `${val};`
 		case 'declaration': {
-			// nombre : variable
 			let data=val.split(":").map(txt => txt
 				.replace(/^\s+/i, '')
 				.replace(/\s+$/i, '')
@@ -604,7 +742,7 @@ HTMLDivElement.prototype.codeTraslation = function () {
 		case 'output':
 			return `printf("${val}");`
 		case 'condition':
-			return `if("${val}") {}`
+			return `if(${val}) {}`
 		case 'loop':
 			return `while("${val}") {}`
 		case 'end':
@@ -613,30 +751,30 @@ HTMLDivElement.prototype.codeTraslation = function () {
 	}
 }
 
-/**
- * @returns {HTMLDivElement | HTMLDivElement[]}
- */
-HTMLDivElement.prototype.nextElem = function () {
-
-	switch (this.elemType()) {
-		// Next elem us only back
-		case 'start':
-		case 'process':
-		case 'declaration':
-		case 'input':
-		case 'output': {
-			let [x, y] = this.elemCoords(),
-				box = document.querySelector(`#layout > div:nth-child(${++x+(++y*colsN)})`)
-			return box.innerHTML !== ''
-				?box
-				:null
-		}
-		case 'condition':
-			throw ("unhandle section")
-		case 'loop':
-			throw("unhandle section")
-		case 'end':
-			return null;
-	}
-}
+// /**
+//  * @returns {HTMLDivElement | HTMLDivElement[]}
+//  */
+// HTMLDivElement.prototype.nextElem = function () {
+//
+// 	switch (this.elemType()) {
+// 		// Next elem us only back
+// 		case 'start':
+// 		case 'process':
+// 		case 'declaration':
+// 		case 'input':
+// 		case 'output': {
+// 			let [x, y] = this.elemCoords(),
+// 				box = document.querySelector(`#layout > div:nth-child(${++x+(++y*colsN)})`)
+// 			return box.innerHTML !== ''
+// 				?box
+// 				:null
+// 		}
+// 		case 'condition':
+// 			throw ("unhandle section")
+// 		case 'loop':
+// 			throw("unhandle section")
+// 		case 'end':
+// 			return null;
+// 	}
+// }
 
