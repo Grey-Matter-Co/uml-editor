@@ -204,11 +204,14 @@ function handleDrop_Symbol() {
 }
 //	Drop for UML's div handler
 function handleDrop_Grid(e) {
+	
 	// UML's div -> UML's div === Flip elements
 	if (!isSymbol(dragSrcEl)) {
 		let srcCoords = getCoords(dragSrcEl),
-			objCoords = getCoords(this)
-		updUMLCoords(srcCoords, objCoords)
+			objCoords = getCoords(this),
+			idx = findUMLElem(srcCoords)
+		if (idx>=0)
+			updUMLCoords(srcCoords, objCoords)
 		if (this.innerHTML!=='')
 			updUMLCoords(objCoords, srcCoords)
 
@@ -219,12 +222,12 @@ function handleDrop_Grid(e) {
 	// Simbolo -> UML's div === Add element
 	else {
 		let umlType = dragSrcEl.id.replace('uml-','');
-
+		
 		if (this.innerHTML!=='') {
 			let idx = findUMLElem(getCoords(this))
 			if (idx>=0)
 				flow[idx].type = umlType
-
+			
 			setSelElem(this)
 			deleteElement()
 		}
@@ -384,7 +387,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 		yF = yFlag?1:-1,
 		strk = 4,
 		long = 20,
-		ymid = endCoords.height/2
+		ymid = beginCoords.height/2+10
 
 
 	let createRow = document.createElement('div')
@@ -392,15 +395,17 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 	createRow.style.position="Absolute"
 	createRow.style.left=x1+"px"
 	createRow.style.top=y1+"px"
-	let xor = !((!xFlag&&yFlag) || (xFlag&&!yFlag))
+	let svgW = Math.max(Math.abs(x2)+(strk+long)/2, 20),
+		svgH = y2+long/2-ymid,
+		yXtr = yFlag?22.5:15
+
 
 	// <path stroke="black" fill="none"  stroke-width=${strk} d="m${(xFlag?(strk/2):x2+strk)+7.25},${yFlag?0:y2+10} v${yF*y2/2},0  h${xF*Math.abs(x2)+(xFlag?0:5)},0 v${yF*y2/2},0"></path>
-	// <path stroke="black" fill="black" stroke-width="1.5"   d="m0,0 l-10,-20 l20,0 z" transform="rotate(${yFlag?'0':'180 10 5'}) translate(${(xFlag?yF*x2:0)+10} ${(yFlag?y2:0)+10})"></path>
 	console.log(`xFlag ${xFlag} | yFlag ${yFlag}`)
 	createRow.innerHTML =
-`<svg width=${(x2?x2:long/2)+long/2} height=${y2+(yFlag?0:ymid)} style="transform: translateX(${xFlag?-strk/2:-(long-strk)/2}px);" xmlns="http://www.w3.org/2000/svg">
-	<!--<path stroke="black" fill="none"  stroke-width=${strk} d="m${xor?strk/2:(x2+(long-strk)/2)},${yFlag?0:ymid} v${y2/2+ymid},0 h${(xor?1:-1)*x2},0 v${y2/2},0"></path>-->
-	<path stroke="black" fill="black" stroke-width="1.5"   d="m0,0 l${-long/2},${-long} l${long},0 z" transform="rotate(0) translate(${xF*(Math.abs(x2-long/2)+xFlag?0long/2)} ${y2})"></path
+`<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px); xmlns="http://www.w3.org/2000/svg">
+	<path stroke="black" fill="none"  stroke-width=${strk} d="m${xFlag?(x2?strk:long)/2:x2+long/2},${yFlag?0:svgH} v0,${yF*yXtr} h${xF*x2},0 v0,${yF*(svgH-yXtr-long)}"></path>
+	<path stroke="black" fill="black" stroke-width="1.5"   d="M10,0 l${-long/2},${-long} l${long},0 z" transform="rotate(${yFlag?0:180}) translate(${yFlag?(xFlag?(x2?x2-10:0):0):-(xFlag?svgW:long)} ${yFlag?y2-ymid:-long})"></path
 </svg>`;
 	layout.appendChild(createRow)
 }
@@ -417,7 +422,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
  * 	   @param domRect2 {DOMRect}
  * 	   @returns {number[4]}
  */
-const getUMLElemConDim = (domRect1, domRect2) => () {
+const getUMLElemConDim = (domRect1, domRect2) => {
 	let x1, x2, y1, y2, xFlag, yFlag,
 		toolsDiv = document.querySelector("body > main > div").getBoundingClientRect(),
 		headerDiv = document.querySelector("body > div.title").getBoundingClientRect();
@@ -440,12 +445,12 @@ const getUMLElemConDim = (domRect1, domRect2) => () {
 	// Y axis
 	if (domRect1.top <= domRect2.top) {
 		y1  = domRect1.top + (domRect1.height/2)
-		y2  = domRect2.top						 - y1-20
+		y2  = domRect2.top + (domRect2.height/2) - y1
 		yFlag = true
 	}
 	else {
 		y1  = domRect2.top + (domRect2.height/2)
-		y2  = domRect1.top						 - y1-20
+		y2  = domRect1.top + (domRect1.height/2) - y1
 		yFlag = false
 	}
 
