@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 		box.setAttribute('col', `${(i%colsN)+1}`)
 		box.setAttribute('row', `${Math.floor(i/colsN)+1}`)
 		box.setAttribute('draggable', 'true')
-		box.addEventListener('click', _ => {if (box.innerHTML==='') rmSelElem()})
+		box.addEventListener('click', _ => {if (box.querySelector('svg')===null) rmSelElem()})
 		layout.appendChild(box)
 	}
 	// Sets Drag & Drop Listener for Grid's divs and Symbols
@@ -227,7 +227,6 @@ function handleDrop_Grid(e) {
 			let idx = findUMLElem(getCoords(this))
 			if (idx>=0)
 				flow[idx].type = umlType
-
 			setSelElem(this)
 			deleteElement()
 		}
@@ -242,14 +241,13 @@ function handleDrop_Grid(e) {
 		let svg = this.querySelector('svg'),
 			input = this.querySelector('input')
 		svg.classList.add(umlType)
-		input.addEventListener('focus', _ => setSelElem(this))
+		input.addEventListener('click', _ => setSelElem(this))
 		input.addEventListener('dblclick', _ => setLinkElem(this))
 		if(umlType==="start"||umlType==="end") {
 			input.setAttribute('value', umlType==='start' ? 'Inicio' : 'Fin')
 			dragSrcEl.classList.add('dragged');
 			dragSrcEl.setAttribute('draggable', 'false')
 		}
-
 		setSelElem(this)
 	}
 }
@@ -368,7 +366,7 @@ const linkUMLElems = () => {
 	// Adds end element
 	if (iEnd<0)
 		iEnd = flow.push({
-			ref: getCoords(linkElems.end.umlCoords()),
+		ref: getCoords(linkElems.end),
 			type: linkElems.end.umlType(),
 			cons: []
 		})-1
@@ -385,6 +383,7 @@ const linkUMLElems = () => {
  * @param SVGBegin	{SVGElement}
  * @param SVGEnd	{SVGElement}
  */
+
 const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 	let beginCoords = SVGBegin.getBoundingClientRect(),
 		endCoords   = SVGEnd.getBoundingClientRect();
@@ -395,8 +394,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
 		strk = 4,
 		long = 20,
 		ymid = beginCoords.height/2+10
-
-
+	
 	let createRow = document.createElement('div')
 	createRow.classList.add('connection')
 	createRow.style.position="Absolute"
@@ -423,10 +421,12 @@ const drawUMLElemCon = (SVGBegin, SVGEnd) => {
  * 	   |				|
  * 	   |				|
  * 	   --------------(x2,y2)
+ *
  * 	   @param domRect1 {DOMRect}
  * 	   @param domRect2 {DOMRect}
  * 	   @returns {number[4]}
  */
+
 const getUMLElemConDim = (domRect1, domRect2) => {
 	let x1, x2, y1, y2, xFlag, yFlag,
 		toolsDiv = document.querySelector("body > main > div").getBoundingClientRect(),
@@ -497,7 +497,6 @@ function  encodeUML() {
 		xmlElem.setAttribute('fill', divElem.umlBgColor())
 		xmlElem.setAttribute('stroke', divElem.umlBdrColor())
 		xmlElem.setAttribute('font-size', divElem.umlFtSz())
-
 		xmlRef.setAttribute('x', umlElem.ref.x.toString())
 		xmlRef.setAttribute('y', umlElem.ref.y.toString())
 
@@ -506,7 +505,7 @@ function  encodeUML() {
 			xmlIndex.setAttribute('value', con.toString())
 			xmlCons.appendChild(xmlIndex)
 		})
-
+		
 		xmlElem.appendChild(xmlRef)
 		xmlElem.appendChild(xmlCons)
 		xmlFlow.appendChild(xmlElem)
@@ -559,8 +558,8 @@ function decodeUML(xmlString) {
  * @param lvl {number}
  * @returns {string}
  */
-const generateCCode = (flowIdx = undefined, lvl = 1) => {
-	let cCode = '',
+const generateCCode = (flowIdx = undefined, lvl = 1, ) => {
+	let cCode = '', tabs = '',
 		umlElem, requiresBlock = false
 
 	if (flowIdx===undefined)
@@ -568,22 +567,119 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 			if (uml.type === "start")
 				flowIdx = i
 		})
-
-	umlElem = flow[flowIdx];
-
-	requiresBlock = umlElem.type==='if' || umlElem.type==='while' || umlElem.type==='do-while' || umlElem.type==='condition'
-
-	if (umlElem.type==='do-while')
-		cCode += "do {"
-	else
+	
+	if (flowIdx!==undefined) {
+		umlElem = flow[flowIdx]
+		requiresBlock = umlElem.type==='condition'
+		
+		for (let i=0; i<lvl; i++)
+			tabs += '\t'
+		cCode += tabs
+		
+		// cuantas veces aparece en cons
+		if (flow.filter(umlE => umlE.cons.includes(flowIdx)).length>1) {
+			alert("se juntan")
+			lvl--
+			cCode = cCode.replace(/\n$/, "")
+		}
+		
 		cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
+		
+		// si no hay elementos en cons de umlElem, entonces cerrar hasta lvl==1
+		
+		if (umlElem.cons.length===0) {
+			if (requiresBlock)
+				cCode += tabs+"}\n"
+			for (; lvl>1; lvl--) {
+				let tabs2 = ''
+				for (let i=1; i<lvl; i++)
+					tabs2 += '\t'
+				cCode += tabs2+"}\n"
+			}
+			/*
+			for (let aux=lvl; lvl+1>1 ;lvl--) {
+				for (let i=lvl; i<=aux ;i++){
+					cCode += tabs.replace(/\t$/, "")
+				}
+				cCode+="}\n"
+			}
+			 */
+		}
+		umlElem.cons.forEach((cons, i) => {
+			if (i===1) {
+				cCode = cCode.replace(/[\t]+}\n[\t]+}\n$/,tabs+"}\n")+tabs+"else {\n"
+			}
+			cCode += generateCCode(cons, requiresBlock?lvl+1:lvl)
+		})
+	}
+	return cCode;
+}
 
-	umlElem.cons.forEach(cons => {
-		cCode += generateCCode(cons, lvl)
+const generateCCode2 = () => {
+	/**
+	 * @type {[{idx: number, count: number}]}
+	 */
+	let outers = [];
+	let cCode = '',
+		umlElem, flowIdx,
+		requiresBlock = false,
+		tabs = '', lvl = 1;
+	
+	flow.forEach((uml, i) => {
+		if (uml.type === "start")
+			flowIdx = i
 	})
-
-	cCode += `${requiresBlock?"} "+umlElem.type==="do-while"?getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode():""+"\n":""}`
-
+	
+	if (flowIdx!==undefined) {
+		while (flowIdx>=0) {
+			umlElem = flow[flowIdx]
+			requiresBlock = umlElem.type==='condition'
+			
+			for (let i=0; i<lvl; i++)
+				tabs += '\t'
+			cCode += tabs
+			
+			// cuantas veces aparece en cons
+			let nJoin = flow.filter(umlE => umlE.cons.includes(flowIdx)).length,
+				includes = outers.length>0 && outers.at(-1).idx===flowIdx;
+			
+			if (includes)
+				outers.at(-1).count++
+			else
+				outers.push({idx: flowIdx, count:1})
+			
+			if (nJoin>=2)
+				if (outers.at(-1).count < nJoin)
+					continue
+				else {
+					lvl--
+					tabs = tabs.replace(/\t$/,"")
+					cCode = cCode.replace(/\t$/,"")+"}\n"+tabs
+				}
+			
+			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
+			
+			// si no hay elementos en cons de umlElem, entonces cerrar hasta lvl==1
+			if (umlElem.cons.length!==0)
+				umlElem.cons.forEach((con, i) => {
+					if (i===1)
+						cCode += tabs+"else {\n"
+					if (requiresBlock)
+						lvl++
+					flowIdx = con
+				})
+			else {
+				for ( ;lvl>1;lvl--) {
+					cCode += tabs.replace(/\t$/, "")
+					cCode+="}\n"
+				}
+				flowIdx = -1
+			}
+		}
+		
+		
+		
+	}
 	return cCode;
 }
 
@@ -622,6 +718,7 @@ function clrLayout() {
 			setSelElem(box)
 			deleteElement()
 		}
+	document.querySelector('#textcode').value = CODEBLOCK.replace("/CODE/", '')
 	flow = []
 }
 
@@ -641,17 +738,29 @@ function changeBdr() {
 }
 
 function deleteElement() {
-	let umlType = selElem.querySelector('svg').classList.value
-	if (umlType==="start"||umlType==="end") {
-		document.querySelector(`[id$=${umlType}]`).classList.remove('dragged');
-		document.querySelector(`[id$=${umlType}]`).setAttribute('draggable', 'true');
+	if (selElem) {
+		let umlType = selElem.querySelector('svg').classList.value
+		if (umlType==="start"||umlType==="end") {
+			document.querySelector(`[id$=${umlType}]`).classList.remove('dragged');
+			document.querySelector(`[id$=${umlType}]`).setAttribute('draggable', 'true');
+		}
+		
+		let idx = findUMLElem(getCoords(selElem))
+		flow.forEach((umlElem, i) => {
+			umlElem.cons = umlElem.cons.filter(idxFlow => idxFlow!==idx)
+			umlElem.cons.forEach((idxFlow, iCon) => {
+				if (idxFlow>idx)
+					flow[i].cons[iCon]--
+			})
+			flow[i].cons = umlElem.cons
+		})
+		flow.splice(idx, 1)
+		
+		selElem.querySelector('svg').remove()
+		updateUI()
 	}
-	// TODO rm element if it's in flow
-	selElem.querySelector('svg').remove()
 	rmSelElem()
 }
-
-
 
 /**
  * @returns {String}
@@ -694,77 +803,54 @@ HTMLDivElement.prototype.umlCoords = function ()
  */
 HTMLDivElement.prototype.uml2CCode = function () {
 	const val = this.umlValue()
-if
-	switch (this.umlType()) {
-		// Next elem us only back
-		case 'start':
-			return `//\t${val}`
-		case 'process':
-			return `${val};`
-		case 'declaration': {
-			let data=val.split(":").map(txt => txt
-				.replace(/^\s+/i, '')
-				.replace(/\s+$/i, '')
-			);
-			data[1]=data[1].toLowerCase();
-			let defaultVal;
-			switch (data[1]) {
-				case 'char':
-					defaultVal='\'\'';
-					break;
-				case 'float':
-					defaultVal='0.0f';
-					break;
-				case 'double':
-					defaultVal='0.0';
-					break;
-				case '':
-					data[1]='int';
-					//don't break 'cause can execute next case
-				case 'int':
-					defaultVal='0';
-					break;
+	if (val.length!==0) {
+
+		switch (this.umlType()) {
+			// Next elem us only back
+			case 'start':
+				return `//\t${val}`
+			case 'process':
+				return `${val};`
+			case 'declaration': {
+				if (val.includes(":")) {
+					let data=val.split(":").map(txt => txt
+						.replace(/^\s+/i, '')
+						.replace(/\s+$/i, '')
+					);
+					data[1]=data[1].toLowerCase();
+					let defaultVal;
+					switch (data[1]) {
+						case 'char':
+							defaultVal='\'\'';
+							break;
+						case 'float':
+							defaultVal='0.0 f';
+							break;
+						case 'double':
+							defaultVal='0.0';
+							break;
+						case '':
+							data[1]='int';
+							//don't break 'cause can execute next case
+						case 'int':
+							defaultVal='0';
+							break;
+					}
+					return `${data[1]} ${data[0]} = ${defaultVal};`
+				}
+				else
+					return val
 			}
-			return `${data[1]} ${data[0]} = ${defaultVal};`
+			case 'input':
+				return `scanf("%d", &${val});`
+			case 'output':
+				return `printf("${val}");`
+			case 'condition':
+				return `if(${val}) `
+			case 'end':
+				return `return 0;\n\t//\t${val}`
 		}
-		case 'input':
-			return `scanf("%d", &${val});`
-		case 'output':
-			return `printf("${val}");`
-		case 'condition':
-			return `if(${val}) {}`
-		case 'loop':
-			return `while("${val}") {}`
-		case 'end':
-			return `return 0;\n\t//\t${val}`
-
 	}
+	else
+		return ""
 }
-
-// /**
-//  * @returns {HTMLDivElement | HTMLDivElement[]}
-//  */
-// HTMLDivElement.prototype.nextElem = function () {
-//
-// 	switch (this.elemType()) {
-// 		// Next elem us only back
-// 		case 'start':
-// 		case 'process':
-// 		case 'declaration':
-// 		case 'input':
-// 		case 'output': {
-// 			let [x, y] = this.elemCoords(),
-// 				box = document.querySelector(`#layout > div:nth-child(${++x+(++y*colsN)})`)
-// 			return box.innerHTML !== ''
-// 				?box
-// 				:null
-// 		}
-// 		case 'condition':
-// 			throw ("unhandle section")
-// 		case 'loop':
-// 			throw("unhandle section")
-// 		case 'end':
-// 			return null;
-// 	}
-// }
-
