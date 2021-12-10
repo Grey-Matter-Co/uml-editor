@@ -89,6 +89,7 @@ document.addEventListener("DOMContentLoaded", _ => {
 	(async _ => {
 		document.querySelector('.loader').classList.remove('d-none')
 		SVGs['condition']	= await fetch(`/uml-svg/condition.svg`).then(file => file.text())
+		SVGs['loop']	    = await fetch(`/uml-svg/condition.svg`).then(file => file.text())
 		SVGs['declaration']	= await fetch(`/uml-svg/declaration.svg`).then(file => file.text())
 		SVGs['end']			= await fetch(`/uml-svg/end.svg`).then(file => file.text())
 		SVGs['input']		= await fetch(`/uml-svg/input.svg`).then(file => file.text())
@@ -120,8 +121,8 @@ document.addEventListener("DOMContentLoaded", _ => {
 	document.querySelector('#in-color-bdr').addEventListener( "input", changeBdr);
 	//	Adds popup to custom SVG btn listeners
 	for (const popupContainer of document.querySelectorAll('.in-popup-container')) {
-		popupContainer.addEventListener('click', popupBtn)
-		popupContainer.nextSibling.firstChild.addEventListener('focusout', popupBtn)
+		popupContainer.addEventListener('click', _ => popupBtn.call(popupContainer.nextSibling) )
+		popupContainer.nextSibling.firstChild.addEventListener('focusout', function() {popupBtn.call(this.parentElement)})
 	}
 	//	Render UML lines (cons)
 	layout.addEventListener('dragend', () => updateUI())
@@ -159,6 +160,7 @@ function handleDragStart(e) {
 		e.preventDefault()
 	else {
 		dragSrcEl = this;
+		setSelElem(this)
 		dragSrcEl.style.opacity = "0.4";
 		e.dataTransfer.effectAllowed = "move";
 		e.dataTransfer.setData("text/html", dragSrcEl.innerHTML);
@@ -241,8 +243,6 @@ function handleDrop_Grid(e) {
 		let svg = this.querySelector('svg'),
 			input = this.querySelector('input')
 		svg.classList.add(umlType)
-		input.addEventListener('click', _ => setSelElem(this))
-		input.addEventListener('dblclick', _ => setLinkElem(this))
 		if(umlType==="start"||umlType==="end") {
 			input.setAttribute('value', umlType==='start' ? 'Inicio' : 'Fin')
 			dragSrcEl.classList.add('dragged');
@@ -266,7 +266,8 @@ function handleDragEnd() {
  * 	UML Logic
  */
 function updateUI(){
-	document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', generateCCode())
+	let endIdx = flow.findIndex(uml => uml.type==="end")
+	document.querySelector('#textcode').value = CODEBLOCK.replace('/CODE/', generateCCode()+ (endIdx>0?("\n\t"+getElemDivByReference(flow[endIdx].ref.x, flow[endIdx].ref.y).uml2CCode()):" "))
 	for (const divConn of document.querySelectorAll('#layout > .connection'))
 		divConn.remove()
 
@@ -300,9 +301,10 @@ function getCoords(UMLDiv) {
 /**
  * @param elem {HTMLDivElement}
  */
-const setSelElem = elem => {
-	for (const elemModer of document.querySelectorAll('.in-mod-elem'))
+function setSelElem (elem) {
+	for (const elemModer of document.querySelectorAll('.in-mod-elem')) {
 		elemModer.classList.remove('disabledbutton')
+	}
 	selElem = elem
 }
 
@@ -315,13 +317,22 @@ const rmSelElem = _ => {
 
 /**
  * @param elem {HTMLDivElement}
- */
-const setLinkElem = (elem) => {
+ |*/
+function setLinkElem (elem) {
 	if (!linkElems.begin)
-		linkElems.begin = elem
+		if (elem.umlType() !== "end")
+			linkElems.begin = elem
+		else {
+			alert("Operacion Inválida")
+			rmLinkElem()
+		}
 	else if (linkElems.begin !== elem) {
 		linkElems.end = elem
-		linkUMLElems()
+		if (elem.umlType() !== "start")
+			linkUMLElems()
+		else
+			alert("Operacion Inválida")
+		
 		rmLinkElem()
 	}
 }
@@ -356,6 +367,7 @@ const updUMLCoords = (oldCoords, newCoords) =>
 const linkUMLElems = () => {
 	let iBegin = findUMLElem(getCoords(linkElems.begin)),
 		iEnd   = findUMLElem(getCoords(linkElems.end));
+	
 	// Adds begin element
 	if (iBegin<0)
 		iBegin = flow.push({
@@ -370,10 +382,14 @@ const linkUMLElems = () => {
 			type: linkElems.end.umlType(),
 			cons: []
 		})-1
-
-
-	if(flow[iBegin].cons.every(conn => conn!==iEnd))
-		flow[iBegin].cons.push(iEnd)
+	
+	if (((flow[iBegin].type === "condition" || flow[iBegin].type === "loop") && flow[iBegin].cons.length===2) || (!(flow[iBegin].type === "condition" || flow[iBegin].type === "loop") && flow[iBegin].cons.length===1))
+		alert("Operacion Inválida")
+	else
+		if(flow[iBegin].cons.every(conn => conn!==iEnd))
+			flow[iBegin].cons.push(iEnd)
+	
+	
 
 	// console.log("flow: "+JSON.stringify(flow, null, 4))
 	updateUI()
@@ -558,7 +574,7 @@ function decodeUML(xmlString) {
  * @param lvl {number}
  * @returns {string}
  */
-const generateCCode = (flowIdx = undefined, lvl = 1, ) => {
+const generateCCode = (flowIdx = undefined, lvl = 1,  requiresEndBlock) => {
 	let cCode = '', tabs = '',
 		umlElem, requiresBlock = false
 
@@ -570,7 +586,8 @@ const generateCCode = (flowIdx = undefined, lvl = 1, ) => {
 	
 	if (flowIdx!==undefined) {
 		umlElem = flow[flowIdx]
-		requiresBlock = umlElem.type==='condition'
+		
+		requiresBlock = umlElem.type==='condition' || umlElem.type==='loop'
 		
 		for (let i=0; i<lvl; i++)
 			tabs += '\t'
@@ -578,22 +595,26 @@ const generateCCode = (flowIdx = undefined, lvl = 1, ) => {
 		
 		// cuantas veces aparece en cons
 		if (flow.filter(umlE => umlE.cons.includes(flowIdx)).length>1) {
-			alert("se juntan")
+			//alert("se juntan")
 			lvl--
 			cCode = cCode.replace(/\n$/, "")
 		}
-		
-		cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
+		if (umlElem.type !== "end")
+			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
 		
 		// si no hay elementos en cons de umlElem, entonces cerrar hasta lvl==1
 		
 		if (umlElem.cons.length===0) {
+			for (let i=0; i<lvl; i++)
+				cCode = cCode.replace(/\t$/, "")
 			if (requiresBlock)
 				cCode += tabs+"}\n"
-			for (; lvl>1; lvl--) {
+			for (; lvl>0; lvl-=2) {
 				let tabs2 = ''
-				for (let i=1; i<lvl; i++)
+				
+				for (let i=0; i<lvl; i++) {
 					tabs2 += '\t'
+				}
 				cCode += tabs2+"}\n"
 			}
 			/*
@@ -605,20 +626,27 @@ const generateCCode = (flowIdx = undefined, lvl = 1, ) => {
 			}
 			 */
 		}
+		
 		umlElem.cons.forEach((cons, i) => {
-			if (i===1) {
-				cCode = cCode.replace(/[\t]+}\n[\t]+}\n$/,tabs+"}\n")+tabs+"else {\n"
-			}
-			cCode += generateCCode(cons, requiresBlock?lvl+1:lvl)
+			requiresEndBlock = false;
+			if (i===1)
+				if (umlElem.type === "condition") {
+					cCode = cCode.replace(/[\t]+}\n[\t]+}\n$/,tabs+"}\n")+tabs+"else {\n"
+					requiresEndBlock = true
+				}
+				else {
+					--lvl
+					requiresEndBlock = false
+				}
+			
+			
+			cCode += generateCCode(cons, requiresBlock?lvl+1:lvl, requiresEndBlock)
 		})
 	}
 	return cCode;
 }
-
+/*
 const generateCCode2 = () => {
-	/**
-	 * @type {[{idx: number, count: number}]}
-	 */
 	let outers = [];
 	let cCode = '',
 		umlElem, flowIdx,
@@ -635,8 +663,7 @@ const generateCCode2 = () => {
 			umlElem = flow[flowIdx]
 			requiresBlock = umlElem.type==='condition'
 			
-			for (let i=0; i<lvl; i++)
-				tabs += '\t'
+			|
 			cCode += tabs
 			
 			// cuantas veces aparece en cons
@@ -669,7 +696,7 @@ const generateCCode2 = () => {
 					flowIdx = con
 				})
 			else {
-				for ( ;lvl>1;lvl--) {
+				for ( ;lvl>0;lvl--) {
 					cCode += tabs.replace(/\t$/, "")
 					cCode+="}\n"
 				}
@@ -682,13 +709,15 @@ const generateCCode2 = () => {
 	}
 	return cCode;
 }
+ */
+
 
 /**
  *	Buttons handle
  */
 
 function popupBtn()
-	{ this.nextSibling.classList.toggle('d-none') }
+	{ this.classList.toggle('d-none') }
 
 function loadLayout() {
 	document.querySelector('#in-load-layout').addEventListener('input', function (ev) {
@@ -760,6 +789,17 @@ function deleteElement() {
 		updateUI()
 	}
 	rmSelElem()
+}
+
+/**
+ * @returns {HTMLElement}
+ */
+Node.prototype.nthParent = function (query) {
+	let parent = this.parentElement
+	while(parent.tagName !== query.toUpperCase())
+		parent = parent.parentElement
+	
+	return parent
 }
 
 /**
@@ -847,6 +887,8 @@ HTMLDivElement.prototype.uml2CCode = function () {
 				return `printf("${val}");`
 			case 'condition':
 				return `if(${val}) `
+			case 'loop':
+				return `while(${val}) `
 			case 'end':
 				return `return 0;\n\t//\t${val}`
 		}

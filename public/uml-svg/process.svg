@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 617.65 268.95">
 	<rect x="10" y="10" width="597.65" height="248.95" fill="#fff" stroke="#010101" stroke-miterlimit="10" stroke-width="20" />
 	<foreignObject height="100%" width="100%" style="text-align: center" >
-		<input type="text" style="background: transparent; border: none; font-size: 4rem; text-align: center; height: 268.95px; width: 100%;" onchange="this.setAttribute(`value`, this.value)">
+        <input type="text" style="background: transparent; border: none; font-size: 4rem; text-align: center; height: 268.95px; width: 100%;" onchange="this.setAttribute(`value`, this.value)" onclick="setSelElem(this.nthParent('div'))" ondblclick="setLinkElem(this.nthParent('div'))" />
 	</foreignObject>
 </svg>

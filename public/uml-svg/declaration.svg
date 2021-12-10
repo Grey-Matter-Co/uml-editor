@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 618.82 268.95">
 	<polygon points="10 10 608.82 10 608.82 50.24 10 50.31 10 218.88 608.82 218.71 608.82 258.95 10 258.95 10 218.88 608.82 218.71 608.82 50.24 10 50.31 10 10" fill="#fff" stroke="#010101" stroke-miterlimit="10" stroke-width="20" />
 	<foreignObject height="100%" width="100%" style="text-align: center" >
-		<input type="text" style="background: transparent; border: none; font-size: 4rem; text-align: center; height: 268.95px; width: 100%;" onchange="this.setAttribute(`value`, this.value)">
+        <input type="text" style="background: transparent; border: none; font-size: 4rem; text-align: center; height: 268.95px; width: 100%;" onchange="this.setAttribute(`value`, this.value)" onclick="setSelElem(this.nthParent('div'))" ondblclick="setLinkElem(this.nthParent('div'))" />
 	</foreignObject>
 </svg>
