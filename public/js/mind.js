@@ -574,7 +574,7 @@ function decodeUML(xmlString) {
  * @param lvl {number}
  * @returns {string}
  */
-const generateCCode = (flowIdx = undefined, lvl = 1,  requiresEndBlock) => {
+const generateCCode = (flowIdx = undefined, lvl = 1) => {
 	let cCode = '', tabs = '',
 		umlElem, requiresBlock = false
 
@@ -593,124 +593,33 @@ const generateCCode = (flowIdx = undefined, lvl = 1,  requiresEndBlock) => {
 			tabs += '\t'
 		cCode += tabs
 		
-		// cuantas veces aparece en cons
-		if (flow.filter(umlE => umlE.cons.includes(flowIdx)).length>1) {
-			//alert("se juntan")
-			lvl--
-			cCode = cCode.replace(/\n$/, "")
-		}
+		// // cuantas veces aparece en cons
+		// if (flow.filter(umlE => umlE.cons.includes(flowIdx)).length>1) {
+		// 	lvl--
+		// 	cCode = cCode.replace(/\n$/, "")
+		// }
+
 		if (umlElem.type !== "end")
 			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
 		
-		// si no hay elementos en cons de umlElem, entonces cerrar hasta lvl==1
-		
-		if (umlElem.cons.length===0) {
-			for (let i=0; i<lvl; i++)
-				cCode = cCode.replace(/\t$/, "")
-			if (requiresBlock)
-				cCode += tabs+"}\n"
-			for (; lvl>0; lvl-=2) {
-				let tabs2 = ''
-				
-				for (let i=0; i<lvl; i++) {
-					tabs2 += '\t'
-				}
-				cCode += tabs2+"}\n"
-			}
-			/*
-			for (let aux=lvl; lvl+1>1 ;lvl--) {
-				for (let i=lvl; i<=aux ;i++){
-					cCode += tabs.replace(/\t$/, "")
-				}
-				cCode+="}\n"
-			}
-			 */
-		}
-		
 		umlElem.cons.forEach((cons, i) => {
-			requiresEndBlock = false;
 			if (i===1)
-				if (umlElem.type === "condition") {
-					cCode = cCode.replace(/[\t]+}\n[\t]+}\n$/,tabs+"}\n")+tabs+"else {\n"
-					requiresEndBlock = true
-				}
-				else {
+				if (umlElem.type === "condition")
+					cCode = cCode.replace(/\t$/, `}\n${tabs}else {\n`)
+				else if (umlElem.type === "loop") {
+					cCode += tabs+"}\n"
 					--lvl
-					requiresEndBlock = false
 				}
 			
 			
-			cCode += generateCCode(cons, requiresBlock?lvl+1:lvl, requiresEndBlock)
+			cCode += generateCCode(cons, requiresBlock?lvl+1:lvl)
 		})
-	}
-	return cCode;
-}
-/*
-const generateCCode2 = () => {
-	let outers = [];
-	let cCode = '',
-		umlElem, flowIdx,
-		requiresBlock = false,
-		tabs = '', lvl = 1;
-	
-	flow.forEach((uml, i) => {
-		if (uml.type === "start")
-			flowIdx = i
-	})
-	
-	if (flowIdx!==undefined) {
-		while (flowIdx>=0) {
-			umlElem = flow[flowIdx]
-			requiresBlock = umlElem.type==='condition'
-			
-			|
-			cCode += tabs
-			
-			// cuantas veces aparece en cons
-			let nJoin = flow.filter(umlE => umlE.cons.includes(flowIdx)).length,
-				includes = outers.length>0 && outers.at(-1).idx===flowIdx;
-			
-			if (includes)
-				outers.at(-1).count++
-			else
-				outers.push({idx: flowIdx, count:1})
-			
-			if (nJoin>=2)
-				if (outers.at(-1).count < nJoin)
-					continue
-				else {
-					lvl--
-					tabs = tabs.replace(/\t$/,"")
-					cCode = cCode.replace(/\t$/,"")+"}\n"+tabs
-				}
-			
-			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
-			
-			// si no hay elementos en cons de umlElem, entonces cerrar hasta lvl==1
-			if (umlElem.cons.length!==0)
-				umlElem.cons.forEach((con, i) => {
-					if (i===1)
-						cCode += tabs+"else {\n"
-					if (requiresBlock)
-						lvl++
-					flowIdx = con
-				})
-			else {
-				for ( ;lvl>0;lvl--) {
-					cCode += tabs.replace(/\t$/, "")
-					cCode+="}\n"
-				}
-				flowIdx = -1
-			}
-		}
-		
-		
-		
-	}
-	return cCode;
-}
- */
 
+		if (umlElem.type === "condition")
+			cCode = cCode.replace(/\t$/, "}")
+	}
+	return cCode;
+}
 
 /**
  *	Buttons handle
