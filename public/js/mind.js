@@ -634,7 +634,7 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 		umlElem.cons.forEach((cons, i) => {
 			if (i===1)
 				if (umlElem.type === "condition")
-					cCode = cCode.replace(/\t$/, `}\n${tabs}else {\n`)
+					cCode += `}\n${tabs}else {\n`
 				else if (umlElem.type === "loop") {
 					cCode += tabs+"}\n"
 					--lvl
@@ -645,7 +645,7 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 		})
 
 		if (umlElem.type === "condition")
-			cCode = cCode.replace(/\t$/, "}")
+			cCode += "}"
 	}
 	return cCode;
 }
