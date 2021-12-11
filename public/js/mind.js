@@ -612,16 +612,16 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 			if (uml.type === "start")
 				flowIdx = i
 		})
-	
+
 	if (flowIdx!==undefined) {
 		umlElem = flow[flowIdx]
-		
+
 		requiresBlock = umlElem.type==='condition' || umlElem.type==='loop'
-		
+
 		for (let i=0; i<lvl; i++)
 			tabs += '\t'
 		cCode += tabs
-		
+
 		// // cuantas veces aparece en cons
 		// if (flow.filter(umlE => umlE.cons.includes(flowIdx)).length>1) {
 		// 	lvl--
@@ -629,12 +629,13 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 		// }
 
 		if (umlElem.type !== "end")
-			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n `
-		
+			cCode += getElemDivByReference(umlElem.ref.x, umlElem.ref.y).uml2CCode()+`${requiresBlock?' {':''}\n`
+
 		umlElem.cons.forEach((cons, i) => {
 			if (i===1)
 				if (umlElem.type === "condition") {
-					cCode = cCode.replace(new RegExp(`[\t]{${lvl+1}}$`), tabs);
+					if (!new RegExp(`\n[\t]{${lvl}}$`).test(cCode))
+						cCode = cCode.replace(new RegExp(`([\t]+)?$`), tabs);
 					cCode += `}\n${tabs}else {\n`
 				}
 				else if (umlElem.type === "loop") {
@@ -646,8 +647,9 @@ const generateCCode = (flowIdx = undefined, lvl = 1) => {
 		})
 
 		if (umlElem.type === "condition") {
-			cCode = cCode.replace(new RegExp(`[\t]{${lvl+1}}$`), tabs);
-			cCode += "}"
+			if (!new RegExp(`\n[\t]{${lvl}}$`).test(cCode))
+				cCode = cCode.replace(new RegExp(`([\t]+)?$`), tabs);
+			cCode += "}\n"
 		}
 	}
 	return cCode;
@@ -784,51 +786,56 @@ HTMLDivElement.prototype.umlCoords = function ()
  */
 HTMLDivElement.prototype.uml2CCode = function () {
 	const val = this.umlValue()
-	switch (this.umlType()) {
-		// Next elem us only back
-		case 'start':
-			return `//\t${val}`
-		case 'process':
-			return val.length?`${val};`:""
-		case 'declaration': {
-			if (val.includes(":")) {
-				let data=val.split(":").map(txt => txt
-					.replace(/^\s+/i, '')
-					.replace(/\s+$/i, '')
-				);
-				data[1]=data[1].toLowerCase();
-				let defaultVal;
-				switch (data[1]) {
-					case 'char':
-						defaultVal='\'\'';
-						break;
-					case 'float':
-						defaultVal='0.0 f';
-						break;
-					case 'double':
-						defaultVal='0.0';
-						break;
-					case '':
-						data[1]='int';
-						//don't break 'cause can execute next case
-					case 'int':
-						defaultVal='0';
-						break;
+	if (val.length!==0) {
+
+		switch (this.umlType()) {
+			// Next elem us only back
+			case 'start':
+				return `//\t${val}`
+			case 'process':
+				return `${val};`
+			case 'declaration': {
+				if (val.includes(":")) {
+					let data=val.split(":").map(txt => txt
+						.replace(/^\s+/i, '')
+						.replace(/\s+$/i, '')
+					);
+					data[1]=data[1].toLowerCase();
+					let defaultVal;
+					switch (data[1]) {
+						case 'char':
+							defaultVal='\'\'';
+							break;
+						case 'float':
+							defaultVal='0.0 f';
+							break;
+						case 'double':
+							defaultVal='0.0';
+							break;
+						case '':
+							data[1]='int';
+							//don't break 'cause can execute next case
+						case 'int':
+							defaultVal='0';
+							break;
+					}
+					return `${data[1]} ${data[0]} = ${defaultVal};`
 				}
-				return `${data[1]} ${data[0]} = ${defaultVal};`
+				else
+					return val
 			}
-			else
-				return val
+			case 'input':
+				return `scanf("%d", &${val});`
+			case 'output':
+				return `printf("${val}");`
+			case 'condition':
+				return `if(${val}) `
+			case 'loop':
+				return `while(${val}) `
+			case 'end':
+				return `return 0;\n\t//\t${val}`
 		}
-		case 'input':
-			return `scanf("%d", &${val});`
-		case 'output':
-			return `printf("${val}");`
-		case 'condition':
-			return `if(${val}) `
-		case 'loop':
-			return `while(${val}) `
-		case 'end':
-			return `return 0;\n\t//\t${val}`
 	}
+	else
+		return ""
 }
