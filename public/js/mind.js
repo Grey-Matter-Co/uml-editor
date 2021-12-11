@@ -786,56 +786,50 @@ HTMLDivElement.prototype.umlCoords = function ()
  */
 HTMLDivElement.prototype.uml2CCode = function () {
 	const val = this.umlValue()
-	if (val.length!==0) {
-
-		switch (this.umlType()) {
-			// Next elem us only back
-			case 'start':
-				return `//\t${val}`
-			case 'process':
-				return `${val};`
-			case 'declaration': {
-				if (val.includes(":")) {
-					let data=val.split(":").map(txt => txt
-						.replace(/^\s+/i, '')
-						.replace(/\s+$/i, '')
-					);
-					data[1]=data[1].toLowerCase();
-					let defaultVal;
-					switch (data[1]) {
-						case 'char':
-							defaultVal='\'\'';
-							break;
-						case 'float':
-							defaultVal='0.0 f';
-							break;
-						case 'double':
-							defaultVal='0.0';
-							break;
-						case '':
-							data[1]='int';
-							//don't break 'cause can execute next case
-						case 'int':
-							defaultVal='0';
-							break;
-					}
-					return `${data[1]} ${data[0]} = ${defaultVal};`
+	switch (this.umlType()) {
+		case 'start':
+			return `//\t${val}`
+		case 'process':
+			return val?`${val};`:""
+		case 'declaration': {
+			if (val.includes(":")) {
+				let data=val.split(":").map(txt => txt
+					.replace(/^\s+/i, '')
+					.replace(/\s+$/i, '')
+				);
+				data[1]=data[1].toLowerCase();
+				let defaultVal;
+				switch (data[1]) {
+					case 'char':
+						defaultVal='\'\'';
+						break;
+					case 'float':
+						defaultVal='0.0 f';
+						break;
+					case 'double':
+						defaultVal='0.0';
+						break;
+					case '':
+						data[1]='int';
+						//don't break 'cause can execute next case
+					case 'int':
+						defaultVal='0';
+						break;
 				}
-				else
-					return val
+				return `${data[1]} ${data[0]} = ${defaultVal};`
 			}
-			case 'input':
-				return `scanf("%d", &${val});`
-			case 'output':
-				return `printf("${val}");`
-			case 'condition':
-				return `if(${val}) `
-			case 'loop':
-				return `while(${val}) `
-			case 'end':
-				return `return 0;\n\t//\t${val}`
+			else
+				return val
 		}
+		case 'input':
+			return `scanf("%d", &${val});`
+		case 'output':
+			return `printf("${val}");`
+		case 'condition':
+			return `if(${val}) `
+		case 'loop':
+			return `while(${val}) `
+		case 'end':
+			return `return 0;\n${val ? "\t//\t${val}": ""}`
 	}
-	else
-		return ""
 }
