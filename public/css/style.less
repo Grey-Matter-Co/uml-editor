@@ -41,7 +41,7 @@ main > div { max-height: 100% }
 	gap: 15px;
 }
 
-#cText{ font-family: "Bebas Neue"}
+#cText{ font-family: "Bebas Neue";}
 
 .scrolleable
 	{overflow-y: auto }
@@ -225,22 +225,30 @@ ul div{ display: flex; justify-content: center; align-items: center; }
 	font-weight: bold;
 }
 
-.emerw{
-	z-index: 4;
-	overflow-y: hidden;
-	overflow-x: hidden;
-	background-color: white;
-}
+.emerw{ z-index: -1;}
+
+@media(min-aspect-ratio: 16/9){ .emerw{ width: 100%;height: auto; } }
+@media(max-aspect-ratio: 16/9){ .emerw{ width: auto;height: 100%; } }
+
 
 #wtext{
 	top:30%;
 	text-align: center;
 	position: relative;
 	font-size: 130px;
-	z-index: 5;
 	font-family: "Bebas Neue";
-	text-shadow: black;
+	text-shadow: 3px 4px 0px rgba(0,0,0,0.3);
+
 }
+
+.wbutton{ position: relative; width: 200px;
+	z-index: 2; left: 50%; top: 35%;
+	transform: translate(-50%, -35%); box-shadow: white;
+	background-color: rgba(255,255,255,0.3); color: white;
+	font-family: "Bebas Neue"; font-size: 25px;
+	border-color: #f8f9fa;
+}
+
 
 /*.textp{
 	text-align: center;

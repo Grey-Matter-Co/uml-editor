@@ -1,67 +1,7 @@
 extends layout
 
 block content
-    .title.shadow
-        p.position-relative Flowchart
-    main.row.w-100.m-0
-        // control de herramientas
-        .flex-shrink-0.col-2.vh-100.p-3.shadow.scrolleable.bg-white(style="z-index:1")
-            //.d-flex.align-items-center.pb-1.mb-3.link-dark.border-bottom
-            .d-flex.justify-content-between
-                i.bi.bi-download(title="Descargar Diagrama")
-                i.bi.bi-upload(title="Cargar Diagrama")
-                .d-none
-                    input#in-load-layout(type="file" multiple="false" accept=".xml")
-                i.bi.bi-trash(title="Eliminar Diagrama")
-                i.bi.bi-type.in-mod-elem.in-popup-container.disabledbutton(title="Editar tamaño texto")
-                .position-relative.d-none
-                    .in-popup(tabindex="-1")
-                        input#in-font-sz(type='number' value='4' min=1 step='1')
-                i.bi.bi-paint-bucket.in-mod-elem.in-popup-container.disabledbutton(title="Modificar fondo")
-                .position-relative.d-none
-                    .in-popup(tabindex="-1")
-                        input#in-color-bg(type="color")
-                i.bi.bi-palette.in-mod-elem.in-popup-container.disabledbutton(title="Modificar contorno")
-                .position-relative.d-none
-                    .in-popup(tabindex="-1")
-                        input#in-color-bdr(type="color")
-                i.bi.bi-x-lg.in-mod-elem.disabledbutton(title="Eliminar Elemento")
-
-            .d-flex.align-items-center.pb-1.pt-3.mb-3.border-bottom
-                span.fs-5.fw-semibold Símbolos
-            ul.list-unstyled.ps-0.justify-content-center
-                #uml-start(title="Inicio" draggable="true")
-                    P.pt-3 Incio
-                #uml-end(title="Fin" draggable="true")
-                    p.pt-3 Fin
-                #uml-input(title="Entrada" draggable="true")
-                    P.pt-3 Entrada
-                #uml-output(title="Salida" draggable="true")
-                    P.pt-3 Salida
-                #uml-process(title="Proceso" draggable="true")
-                    P.pt-3 Proceso
-                #uml-declaration(title="Declaración" draggable="true")
-                    P.pt-3 Declaración
-                #uml-condition(title="Condición" draggable="true")
-                    P.pt-3 Condicion
-                #uml-loop(title="Ciclo" draggable="true")
-                    P.pt-3 Ciclo
-
-
-
-        // contaniner será el layout del editor
-        //canvas#canvas.col-7.bg-light.vh-100.scrollbar.scrolleable(width="800" height="600")
-        #layout.col-7.bg-light.vh-100.scrollbar.scrolleable.position-relative
-
-        // container del código en C
-        //#cCode.col-3.vh-100.bg-white.pb-4.mb-3.shadow.p-3.scrolleable
-        div.border-2.vh-100.shadow.pb-10.p-2.col-3.pb-4.mb-3.p-3.bg-white(style="z-index:1")
-            .position-relative
-                svg.position-absolute(xmlns='http://www.w3.org/2000/svg' width='54' height='14' viewbox='0 0 54 14')
-                    g(fill='none' fill-rule='evenodd' transform='translate(1 1)')
-                        circle(cx='6' cy='6' r='6' fill='#FF5F56' stroke='#E0443E' stroke-width='.5')
-                        circle(cx='26' cy='6' r='6' fill='#FFBD2E' stroke='#DEA123' stroke-width='.5')
-                        circle(cx='46' cy='6' r='6' fill='#27C93F' stroke='#1AAB29' stroke-width='.5')
-                .text-center.mb-2
-                    span#cText Código en C
-            textarea#textcode.form-control.border-0.bg-light.pb-3.scrolleable.mb-5(readonly=true style="height: -webkit-fill-available;")
+    video.position-relative.emerw.position-fixed(src="/img/video.mp4" type="video/mp4" playsinline="playsinline" autoplay="autoplay" muted="muted" loop="loop" width="100%")
+    p#wtext.text-white Flowchart
+    a(href='/editor')
+        button.btn.wbutton(type='button') C o m e n z a r

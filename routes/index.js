@@ -11,11 +11,3 @@ router.get('/editor', function(req, res) {
 });
 
 module.exports = router;
-/**
- * wenas. tienes problemas de internet? o soy yo
- * chale JAJAJA
- * ptm
- * hago push
- *
- * tú jajajaj me saca a cada rato
- */
