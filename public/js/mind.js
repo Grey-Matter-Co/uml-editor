@@ -439,7 +439,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd, second) => {
 			svgH = y2+long/2-ymid,
 			yXtr = yFlag?22.5:15
 		createRow.innerHTML =
-			`<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px); xmlns="http://www.w3.org/2000/svg">
+			`<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px);" xmlns="http://www.w3.org/2000/svg">
 				<path stroke="black" fill="none"  stroke-width=${strk} d="m${xFlag?(x2?strk:long)/2:x2+long/2},${yFlag?0:svgH} v0,${yF*yXtr} h${xF*x2},0 v0,${yF*(svgH-yXtr-long)}"></path>
 				<path stroke="black" fill="black" stroke-width="1.5"   d="M10,0 l${-long/2},${-long} l${long},0 z" transform="rotate(${yFlag?0:180}) translate(${yFlag?(xFlag?(x2?x2-10:0):0):-(xFlag?svgW:long)} ${yFlag?y2-ymid:-long})"></path>
 			</svg>`;
@@ -451,7 +451,7 @@ const drawUMLElemCon = (SVGBegin, SVGEnd, second) => {
 			svgH = y2+long/2-ymid,
 			yXtr = yFlag?22.5:15
 		createRow.innerHTML =
-			`<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px); xmlns="http://www.w3.org/2000/svg">
+			`<svg width=${svgW} height=${svgH} style="transform: translateX(${-(svgW===20||!xFlag?long:strk)/2}px);" xmlns="http://www.w3.org/2000/svg">
 				<path stroke="black" fill="none"  stroke-width=${strk} d="m${xFlag?(x2?strk:long)/2:x2+long/2},${yFlag?strk/2:svgH} h${xF*x2},0 v0,${yF*svgH},0 "></path>
 				<path stroke="black" fill="black" stroke-width="1.5"   d="M10,0 l${-long/2},${-long} l${long},0 z" transform="rotate(${yFlag?0:180}) translate(${yFlag?(xFlag?(x2?x2-(long-strk)/2:0):0):-(xFlag?svgW:long)} ${yFlag?y2-ymid+long/2:-long})"></path>
 			</svg>`;
