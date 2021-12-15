@@ -830,6 +830,6 @@ HTMLDivElement.prototype.uml2CCode = function () {
 		case 'loop':
 			return `while(${val}) `
 		case 'end':
-			return `return 0;\n${val ? "\t//\t${val}": ""}`
+			return `return 0;\n${val ? "\t//\t"+val: ""}`
 	}
 }
